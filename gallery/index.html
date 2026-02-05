@@ -4,214 +4,265 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我们的时光印记</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <style>
         :root {
-            --primary-color: #ff7675;
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            --primary-pink: #ff7675;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: var(--bg-gradient);
+             
+            background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             font-family: 'Noto Serif SC', serif;
-            color: #2d3436;
-            padding: 60px 20px;
+            color: #555;
+            padding: 40px 15px;
+            overflow-x: hidden;
+            position: relative;
         }
 
         header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 10;
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 3.2rem;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.1);
             font-weight: 700;
-            letter-spacing: 6px;
-            color: #2d3436;
+            letter-spacing: 5px;
             margin-bottom: 10px;
         }
 
+         
         .subtitle {
-            font-family: 'Ma Shan+Zheng', cursive;
+            font-family: 'Ma Shan Zheng', cursive;
             font-size: 1.5rem;
-            color: var(--primary-color);
-            opacity: 0.8;
+            color: #fff;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+         
+        #love-timer {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+            color: #ff7675;  
+            background: rgba(255,255,255,0.9);
+            padding: 10px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid #fff;
         }
 
          
         .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            grid-gap: 40px;
-            max-width: 1300px;
+            column-count: 4;  
+            column-gap: 25px;
+            max-width: 1400px;
             margin: 0 auto;
-        }
-
-        .gallery-item {
             position: relative;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: var(--shadow);
-            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-            cursor: pointer;
+            z-index: 10;
         }
 
          
+        .gallery-item {
+            break-inside: avoid;  
+            margin-bottom: 25px;
+            position: relative;
+            background-color: #fff;
+            
+             
+            padding: 12px 12px 45px 12px; 
+            
+            border-radius: 4px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);  
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: center top;
+            cursor: zoom-in;
+        }
+
+         
+        .gallery-item:nth-child(even) { transform: rotate(2deg); }
+        .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
+        .gallery-item:nth-child(3n) { transform: rotate(1deg); }  
+
+         
         .gallery-item:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            transform: rotate(0deg) scale(1.05) translateY(-10px) !important;
+            z-index: 20;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
         }
 
         .gallery-item img {
             width: 100%;
-            height: 400px;
-            object-fit: cover;  
+            height: auto;
             display: block;
-            transition: transform 1.2s ease;
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.1);
+            border: 1px solid #f3f3f3;  
         }
 
          
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent 60%);
+        #music-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            cursor: pointer;
+            width: 45px;
+            height: 45px;
+            background: #fff;
+            border-radius: 50%;
             display: flex;
-            align-items: flex-end;
-            padding: 30px;
-            opacity: 0;
-            transition: opacity 0.4s ease;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-size: 1.4rem;
+            transition: transform 0.2s;
         }
-
-        .gallery-item:hover .overlay {
-            opacity: 1;
-        }
-
-        .overlay span {
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 300;
-            letter-spacing: 2px;
-            border-left: 3px solid var(--primary-color);
-            padding-left: 12px;
-        }
-	 
-	@keyframes star-fall {
-    	0% { transform: translateY(-100px) translateX(0) rotate(-45deg); 	opacity: 1; }
-    	100% { transform: translateY(100vh) translateX(-500px) 	rotate(-45deg); opacity: 0; }
-}
-
-.star {
-    position: fixed;
-    width: 2px;
-    height: 100px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
-    animation: star-fall 3s linear infinite;
-    z-index: -1;  
-}
 
          
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .gallery-grid { grid-template-columns: 1fr; }
+        @media (max-width: 1024px) { .gallery-grid { column-count: 3; } }
+        @media (max-width: 768px) { 
+            .gallery-grid { column-count: 2; } 
+            h1 { font-size: 2.2rem; }
+        }
+        @media (max-width: 480px) { 
+            .gallery-grid { column-count: 1; } 
+            .gallery-item { transform: rotate(0deg) !important; }  
+        }
+
+         
+        .star-style {
+            position: fixed;
+            top: 0;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9));
+            width: 2px;
+            height: 70px;
+            z-index: 1;  
+            pointer-events: none;
+            border-radius: 99px;
+            opacity: 0.8;
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
         }
     </style>
 </head>
 <body>
-    <header>
+    <header data-aos="fade-down" data-aos-duration="1000">
         <h1>我们的时光印记</h1>
         <p class="subtitle">记录我们的每一个瞬间</p>
+        <div id="love-timer">正在计算我们在一起的时光...</div>
     </header>
 
     <div class="gallery-grid">
         
         
-            <div class="gallery-item">
-                <img src="/images/NORMAL00022.jpg" alt="NORMAL00022.jpg" loading="lazy">
-                <div class="overlay">
-                    <span>NORMAL00022.jpg</span>
-                </div>
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00022.jpg" data-fancybox="gallery" data-caption="NORMAL00022.jpg">
+                    <img src="/images/NORMAL00022.jpg" alt="NORMAL00022.jpg" loading="lazy">
+                </a>
             </div>
         
-            <div class="gallery-item">
-                <img src="/images/NORMAL00038.jpg" alt="NORMAL00038.jpg" loading="lazy">
-                <div class="overlay">
-                    <span>NORMAL00038.jpg</span>
-                </div>
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00038.jpg" data-fancybox="gallery" data-caption="NORMAL00038.jpg">
+                    <img src="/images/NORMAL00038.jpg" alt="NORMAL00038.jpg" loading="lazy">
+                </a>
             </div>
         
-            <div class="gallery-item">
-                <img src="/images/NORMAL00039.jpg" alt="NORMAL00039.jpg" loading="lazy">
-                <div class="overlay">
-                    <span>NORMAL00039.jpg</span>
-                </div>
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00039.jpg" data-fancybox="gallery" data-caption="NORMAL00039.jpg">
+                    <img src="/images/NORMAL00039.jpg" alt="NORMAL00039.jpg" loading="lazy">
+                </a>
             </div>
         
-            <div class="gallery-item">
-                <img src="/images/first-date.jpg" alt="first-date.jpg" loading="lazy">
-                <div class="overlay">
-                    <span>first-date.jpg</span>
-                </div>
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/first-date.jpg" data-fancybox="gallery" data-caption="first-date.jpg">
+                    <img src="/images/first-date.jpg" alt="first-date.jpg" loading="lazy">
+                </a>
             </div>
         
     </div>
 
+    <div id="music-btn">🎵</div>
+    <audio id="bg-audio" src="/music/love.mp3" loop></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
     <script>
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.onclick = () => {
-                const img = item.querySelector('img');
-                window.open(img.src, '_blank');
-            };
+        
+        AOS.init({ once: true, offset: 60 });
+
+        
+        Fancybox.bind("[data-fancybox]", {
+            Carousel: { infinite: true },
+            Thumbs: { type: "classic" },
+            Toolbar: { display: { left: [], middle: [], right: ["close"] } },
         });
-    </script>
-<div id="music-btn" style="position: fixed; bottom: 30px; right: 30px; z-index: 1000; cursor: pointer; font-size: 2rem;">
-    🎵
-</div>
-<audio id="bg-audio" src="/music/love.mp3" loop></audio>
 
-<script>
-    const btn = document.getElementById('music-btn');
-    const audio = document.getElementById('bg-audio');
-    let isPlaying = false;
+        
+        function updateTimer() {
+            
+            const startDate = new Date("2023-08-21T00:00:00"); 
+            const now = new Date();
+            const diff = now - startDate;
 
-    btn.onclick = () => {
-        if (isPlaying) {
-            audio.pause();
-            btn.style.animation = "none";
-        } else {
-            audio.play();
-            btn.style.animation = "rotate 3s linear infinite"; 
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById("love-timer").innerHTML = 
+                `我们已经在一起 ❤️ ${days}天 ${hours}小时 ${minutes}分 ${seconds}秒`;
         }
-        isPlaying = !isPlaying;
-    };
-</script>
+        setInterval(updateTimer, 1000);
+        updateTimer();
 
-<style>
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-</style>
+        
+        const btn = document.getElementById('music-btn');
+        const audio = document.getElementById('bg-audio');
+        let isPlaying = false;
+        btn.onclick = () => {
+            if (isPlaying) { audio.pause(); btn.style.transform = "scale(1)"; } 
+            else { audio.play(); btn.style.transform = "scale(1.1)"; }
+            isPlaying = !isPlaying;
+        };
+
+        
+        function createStar() {
+            const star = document.createElement('div');
+            star.className = 'star-style';
+            star.style.left = Math.random() * 100 + 'vw';
+            
+            
+            star.style.animation = `starFall ${Math.random() * 3 + 4}s linear forwards`;
+            
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 7000);
+        }
+
+        
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes starFall {
+                0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; }
+                10% { opacity: 1; }
+                100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        setInterval(createStar, 700);
+    </script>
 </body>
-<script>
-    function createStar() {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.animationDuration = Math.random() * 2 + 3 + 's';
-        document.body.appendChild(star);
-        setTimeout(() => star.remove(), 5000);
-    }
-    setInterval(createStar, 800);
-</script>
 </html>
