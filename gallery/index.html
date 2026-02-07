@@ -143,7 +143,7 @@
     
     <div id="danmaku-container"></div>
     
-    <div id="login-trigger">🔒 管理员</div>
+    <div id="login-trigger" onclick="toggleLoginModal()">🔒 管理员</div>
 
     <div id="login-modal">
         <div class="login-box">
@@ -152,13 +152,13 @@
             <input type="text" id="username" class="login-input" placeholder="账号">
             <input type="password" id="password" class="login-input" placeholder="密码">
             
-            <button class="login-btn-submit" onclick="registerUser()" style="background:#aaa;">注册(仅第一次用)</button>
-            <button class="login-btn-submit" onclick="loginUser()">登录</button>
+            <button class="login-btn-submit" onclick="restRegister()" style="background:#aaa;">注册(仅第一次用)</button>
+            <button class="login-btn-submit" onclick="restLogin()">登录</button>
         </div>
     </div>
 
     <div id="dm-input-area">
-        <input type="text" id="dm-input" placeholder="写下你的祝福 (永久保存)..." maxlength="30">
+        <input type="text" id="dm-input" placeholder="写下你的comments" maxlength="30">
         <button id="dm-btn">发送 ❤️</button>
     </div>
 
@@ -239,35 +239,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/bmob.js-sdk-v4@4.0.0/dist/Bmob-4.0.0.min.js"></script>
-
     <script>
         
         
         
-        const SECRET_KEY = '2724ee2b975a1ff9'; 
-        const API_KEY = 'MyLoveGallery999';   
-
-        let isUserAdmin = false; 
+        const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
+        const REST_KEY = 'faf97987bbddd381428a4103e0556ed9'; 
+        const BASE_URL = 'https://api.bmobcloud.com/1';
 
         
-        try {
-            if(typeof Bmob !== 'undefined') {
-                Bmob.initialize(SECRET_KEY, API_KEY);
-                console.log("Bmob 初始化成功");
-                
-                let current = Bmob.User.current();
-                if(current) {
-                    if(current.username === 'fangq' || current.isAdmin === true) {
-                        isUserAdmin = true;
-                        document.getElementById('login-trigger').innerText = "👤 " + current.username;
-                    }
-                }
-            } else {
-                console.error("Bmob SDK 加载失败，请检查网络");
-            }
-        } catch(e) { console.error("Bmob Init Error:", e); }
+        let isUserAdmin = false;
+        let currentUser = null;
 
+        
         window.addEventListener('load', () => {
             const loader = document.getElementById('page-loader');
             loader.style.opacity = '0';
@@ -275,53 +259,155 @@
                 loader.style.display = 'none';
                 AOS.init({ once: true, offset: 60 });
                 
-                if(typeof Bmob !== 'undefined') {
-                    loadCloudMessages();
-                }
+                
+                checkLocalLogin();
+                
+                loadCloudMessages();
+                
                 startRandomAtmosphere();
             }, 600);
         });
 
         
+        function bmobRequest(endpoint, method, body=null) {
+            const headers = {
+                'X-Bmob-Application-Id': APP_ID,
+                'X-Bmob-REST-API-Key': REST_KEY,
+                'Content-Type': 'application/json'
+            };
+            
+            if(localStorage.getItem('bmob_session')) {
+                headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
+            }
+
+            const config = { method: method, headers: headers };
+            if(body) config.body = JSON.stringify(body);
+
+            return fetch(BASE_URL + endpoint, config).then(res => {
+                if(!res.ok) throw new Error(res.statusText);
+                return res.json();
+            });
+        }
+
+        
         const loginModal = document.getElementById('login-modal');
         function toggleLoginModal() {
-            if(Bmob.User.current()) {
-                if(confirm("确定要退出登录吗？")) {
-                    Bmob.User.logout();
+            if(currentUser) {
+                if(confirm("确定退出登录吗？")) {
+                    localStorage.removeItem('bmob_user');
+                    localStorage.removeItem('bmob_session');
                     location.reload();
                 }
             } else {
                 loginModal.style.display = (loginModal.style.display === 'flex') ? 'none' : 'flex';
             }
         }
-        document.getElementById('login-trigger').onclick = toggleLoginModal;
 
-        function registerUser() {
-            let u = document.getElementById('username').value;
-            let p = document.getElementById('password').value;
-            let params = { username: u, password: p, isAdmin: true }; 
-            Bmob.User.register(params).then(res => {
-                alert('注册成功！');
-            }).catch(err => { alert('注册失败:' + err.error); });
+        function checkLocalLogin() {
+            const savedUser = localStorage.getItem('bmob_user');
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                if(currentUser.username === 'fangq' || currentUser.isAdmin) {
+                    isUserAdmin = true;
+                }
+                document.getElementById('login-trigger').innerText = "👤 " + currentUser.username;
+            }
         }
 
-        function loginUser() {
-            let u = document.getElementById('username').value;
-            let p = document.getElementById('password').value;
-            Bmob.User.login(u, p).then(res => {
+        function restRegister() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            bmobRequest('/users', 'POST', { 
+                username: u, 
+                password: p, 
+                isAdmin: true 
+            }).then(res => {
+                alert('注册成功！请点击登录');
+            }).catch(e => alert('注册失败: ' + e));
+        }
+
+        function restLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            bmobRequest(`/login?username=${u}&password=${p}`, 'GET').then(res => {
+                
+                localStorage.setItem('bmob_user', JSON.stringify(res));
+                localStorage.setItem('bmob_session', res.sessionToken);
                 alert('登录成功！');
                 location.reload();
-            }).catch(err => { alert('登录失败:' + err.error); });
+            }).catch(e => alert('账号或密码错误'));
         }
 
         
+        function loadCloudMessages() {
+            
+            bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
+                messageList.innerHTML = '';
+                if (!data.results || data.results.length === 0) {
+                    messageList.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
+                } else {
+                    let i = 0;
+                    data.results.forEach(item => {
+                        const text = item.content;
+                        const date = item.createdAt.split(' ')[0];
+                        addCardToWall(text, date, item.objectId);
+                        setTimeout(() => shootDanmaku(text), i * 1500);
+                        i++;
+                    });
+                }
+            }).catch(e => {
+                console.error(e);
+                messageList.innerHTML = '<div style="color:#fff">加载失败，请刷新重试</div>';
+            });
+        }
+
+        function saveToCloud(text) {
+            bmobRequest('/classes/Danmaku', 'POST', { content: text })
+                .then(res => console.log('Saved'))
+                .catch(e => console.error(e));
+        }
+
         window.deleteMessage = function(objectId, element) {
-            if(!confirm("确定删除这条留言吗？")) return;
-            const query = Bmob.Query('Danmaku');
-            query.destroy(objectId).then(res => {
+            if(!confirm("确定删除吗？")) return;
+            
+            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => {
                 alert('删除成功');
                 element.parentElement.remove();
-            }).catch(err => { alert('删除失败:' + err.error); });
+            }).catch(e => alert('删除失败，可能无权限'));
+        }
+
+        
+        const messageList = document.getElementById('message-list');
+        const dmContainer = document.getElementById('danmaku-container');
+        const dmInput = document.getElementById('dm-input');
+        const dmBtn = document.getElementById('dm-btn');
+
+        function addCardToWall(text, dateStr, objectId) {
+            const card = document.createElement('div');
+            card.className = 'message-card';
+            let delBtn = '';
+            
+            if(isUserAdmin && objectId) {
+                delBtn = `<div class="delete-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>`;
+            }
+            card.innerHTML = `${delBtn}${text} <span class="message-time">${dateStr}</span>`;
+            if(messageList.firstChild) messageList.insertBefore(card, messageList.firstChild);
+            else messageList.appendChild(card);
+        }
+
+        function shootDanmaku(text, isSelf=false) {
+            const dm = document.createElement('div');
+            dm.innerText = text;
+            dm.className = 'danmaku-item';
+            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; 
+            dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
+            if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
+            const duration = Math.random() * 7 + 8; 
+            dm.style.animation = `dmLeft ${duration}s linear forwards`;
+            dmContainer.appendChild(dm);
+            setTimeout(() => dm.remove(), duration * 1000);
         }
 
         
@@ -357,66 +443,6 @@
         };
 
         
-        const dmContainer = document.getElementById('danmaku-container');
-        const dmInput = document.getElementById('dm-input');
-        const dmBtn = document.getElementById('dm-btn');
-        const messageList = document.getElementById('message-list');
-
-        function shootDanmaku(text, isSelf=false) {
-            const dm = document.createElement('div');
-            dm.innerText = text;
-            dm.className = 'danmaku-item';
-            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; 
-            dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
-            if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
-            const duration = Math.random() * 7 + 8; 
-            dm.style.animation = `dmLeft ${duration}s linear forwards`;
-            dmContainer.appendChild(dm);
-            setTimeout(() => dm.remove(), duration * 1000);
-        }
-
-        function addCardToWall(text, dateStr, objectId) {
-            const card = document.createElement('div');
-            card.className = 'message-card';
-            let delBtn = '';
-            if(isUserAdmin && objectId) {
-                delBtn = `<div class="delete-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>`;
-            }
-            card.innerHTML = `${delBtn}${text} <span class="message-time">${dateStr}</span>`;
-            if(messageList.firstChild) messageList.insertBefore(card, messageList.firstChild);
-            else messageList.appendChild(card);
-        }
-
-        function saveToCloud(text) {
-            const query = Bmob.Query('Danmaku');
-            query.set("content", text);
-            query.save().then(res => { console.log('Saved'); }).catch(err => console.log(err));
-        }
-
-        function loadCloudMessages() {
-            const query = Bmob.Query("Danmaku");
-            query.order("-createdAt"); 
-            query.limit(50);
-            query.find().then(res => {
-                messageList.innerHTML = '';
-                if (res.length === 0) {
-                    messageList.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
-                } else {
-                    let i = 0;
-                    res.forEach(item => {
-                        const text = item.content;
-                        const date = item.createdAt.split(' ')[0];
-                        addCardToWall(text, date, item.objectId);
-                        setTimeout(() => shootDanmaku(text), i * 1500);
-                        i++;
-                    });
-                }
-            }).catch(err => {
-                console.log(err);
-                messageList.innerHTML = '<div style="color:#fff">网络正在开小差...</div>';
-            });
-        }
-
         function startRandomAtmosphere() {
             const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
             setInterval(() => {
@@ -437,6 +463,7 @@
         };
         dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
 
+        
         function createStar() {
             const star = document.createElement('div');
             star.className = 'star-style';
