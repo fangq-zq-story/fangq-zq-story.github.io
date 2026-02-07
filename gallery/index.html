@@ -26,6 +26,7 @@
             padding: 40px 15px;
             overflow-x: hidden;
             position: relative;
+            cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
         }
 
         #page-loader {
@@ -44,38 +45,79 @@
         .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
 
          
-        #login-trigger {
-            position: fixed; top: 20px; right: 20px; z-index: 20000;
-            background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px;
-            cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif;
+        .float-btn {
+            position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif; padding: 5px 15px; border-radius: 20px;
         }
+        #login-trigger { top: 20px; right: 20px; background: rgba(255,255,255,0.8); }
         #login-trigger:hover { background: #fff; transform: translateY(-2px); }
+        
+        #upload-trigger { 
+            top: 20px; left: 20px; 
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white;
+            display: none;  
+        }
+        #upload-trigger:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(161, 140, 209, 0.4); }
 
-        #login-modal {
+         
+        .photo-controls {
+            position: absolute; top: 10px; right: 10px; z-index: 30;
+            display: flex; gap: 5px; opacity: 0; transition: opacity 0.3s;
+        }
+        .gallery-item:hover .photo-controls { opacity: 1; }
+        .control-btn {
+            width: 25px; height: 25px; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; color: white; font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-edit { background: #74b9ff; }
+        .btn-delete { background: #ff7675; }
+        .btn-edit:hover, .btn-delete:hover { transform: scale(1.1); }
+
+         
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 20001;
             display: none; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
         }
-        .login-box {
+        .modal-box {
             background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px;
-            width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
+            width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
         }
-        .login-box h3 { margin-bottom: 20px; color: #ff7675; font-family: 'Ma Shan Zheng', cursive; }
-        .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .login-btn-submit:hover { background: #ff5252; }
+        .modal-box h3 { margin-bottom: 20px; color: #ff7675; font-family: 'Ma Shan Zheng', cursive; }
+        .modal-input, .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
+        .modal-btn, .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
+        .modal-btn:hover, .login-btn-submit:hover { background: #ff5252; }
         .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #999; font-size: 1.5rem; }
 
-         
-        .delete-btn {
+        .delete-msg-btn {
             position: absolute; top: -8px; right: -8px;
             width: 20px; height: 20px; background: #ff4757; color: white;
             border-radius: 50%; font-size: 12px; line-height: 20px; text-align: center;
             cursor: pointer; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5;
         }
-        .message-card:hover .delete-btn.show-admin { display: block; }
+        .message-card:hover .delete-msg-btn.show-admin { display: block; }
+
+         
+        .gallery-grid { column-count: 4; column-gap: 25px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; }
+        .gallery-item { 
+            break-inside: avoid; margin-bottom: 25px; position: relative; 
+            background-color: #fff; padding: 15px; border-radius: 4px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.4s; 
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .gallery-item:nth-child(even) { transform: rotate(2deg); }
+        .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
+        .gallery-item:hover { transform: rotate(0deg) scale(1.05) translateY(-10px) !important; z-index: 20; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .gallery-item img { width: 100%; height: auto; display: block; border: 1px solid #eee; cursor: zoom-in; }
+
+         
+        .photo-caption-text {
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555; 
+            text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
+        }
 
         #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
         .board-title { text-align: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -108,16 +150,11 @@
 
         header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
         h1 { font-family: 'Ma Shan Zheng', cursive; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
+        .subtitle { font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
+        .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; margin-left: 2px; color: #fff; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes textFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .subtitle { font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         #love-timer { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-        .gallery-grid { column-count: 4; column-gap: 25px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; }
-        .gallery-item { break-inside: avoid; margin-bottom: 25px; position: relative; background-color: #fff; padding: 12px 12px 45px 12px; border-radius: 3px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); transition: all 0.4s; cursor: zoom-in; }
-        .gallery-item:nth-child(even) { transform: rotate(2deg); }
-        .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
-        .gallery-item:hover { transform: rotate(0deg) scale(1.05) translateY(-10px) !important; z-index: 20; }
-        .gallery-item img { width: 100%; height: auto; display: block; border: 1px solid #f3f3f3; }
 
         footer { text-align: center; font-family: 'Ma Shan Zheng', cursive; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
 
@@ -132,10 +169,16 @@
             #message-board-section { padding: 0 20px; }
             #music-btn { bottom: auto !important; top: 20px !important; right: 20px !important; width: 40px; height: 40px; font-size: 1.2rem; }
             #login-trigger { top: 25px; right: 70px; padding: 4px 10px; font-size: 0.8rem; }
+            #upload-trigger { top: 25px; left: 10px; padding: 4px 10px; font-size: 0.8rem; }
         }
         
         .star-style { position: fixed; top: 0; background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8)); width: 2px; height: 70px; z-index: 1; pointer-events: none; border-radius: 99px; }
         @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+        .click-heart { position: fixed; pointer-events: none; z-index: 99999; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+        .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
+        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
     </style>
 </head>
 <body>
@@ -143,16 +186,36 @@
     
     <div id="danmaku-container"></div>
     
-    <div id="login-trigger" onclick="toggleLoginModal()">🔒 管理员</div>
+    <div id="login-trigger" class="float-btn" onclick="toggleModal('login-modal')">🔒 管理员</div>
+    <div id="upload-trigger" class="float-btn" onclick="toggleModal('upload-modal')">📷 上传照片</div>
 
-    <div id="login-modal">
-        <div class="login-box">
-            <div class="close-modal" onclick="toggleLoginModal()">×</div>
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="close-modal" onclick="toggleModal('login-modal')">×</div>
             <h3>管理员登录</h3>
             <input type="text" id="username" class="login-input" placeholder="账号">
             <input type="password" id="password" class="login-input" placeholder="密码">
-            
             <button class="login-btn-submit" onclick="restLogin()">登录</button>
+        </div>
+    </div>
+
+    <div id="upload-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="close-modal" onclick="toggleModal('upload-modal')">×</div>
+            <h3>添加美好瞬间</h3>
+            <input type="file" id="photo-file" class="modal-input" accept="image/*">
+            <input type="text" id="photo-caption" class="modal-input" placeholder="写一句好看的批注吧">
+            <button class="modal-btn" id="upload-btn-action" onclick="uploadPhoto()">☁️ 上传到云相册</button>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="close-modal" onclick="toggleModal('edit-modal')">×</div>
+            <h3>修改批注</h3>
+            <input type="hidden" id="edit-photo-id">
+            <input type="text" id="edit-photo-caption" class="modal-input" placeholder="输入新的批注...">
+            <button class="modal-btn" onclick="confirmEditPhoto()">💾 保存修改</button>
         </div>
     </div>
 
@@ -163,58 +226,58 @@
 
     <header data-aos="fade-down" data-aos-duration="1000">
         <h1>我们的时光印记</h1>
-        <p class="subtitle">记录我们的每一个瞬间</p>
+        <p class="subtitle typing-cursor">记录我们的每一个瞬间</p>
         <div id="love-timer">Loading...</div>
     </header>
 
-    <div class="gallery-grid">
+    <div class="gallery-grid" id="gallery-grid">
         
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00022.jpg" data-fancybox="gallery" data-caption="NORMAL00022.jpg">
-                    <img src="/images/NORMAL00022.jpg" alt="NORMAL00022.jpg" loading="lazy">
+                <a href="/images/NORMAL00022.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00022.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00038.jpg" data-fancybox="gallery" data-caption="NORMAL00038.jpg">
-                    <img src="/images/NORMAL00038.jpg" alt="NORMAL00038.jpg" loading="lazy">
+                <a href="/images/NORMAL00038.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00038.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00039.jpg" data-fancybox="gallery" data-caption="NORMAL00039.jpg">
-                    <img src="/images/NORMAL00039.jpg" alt="NORMAL00039.jpg" loading="lazy">
+                <a href="/images/NORMAL00039.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00039.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00042.jpg" data-fancybox="gallery" data-caption="NORMAL00042.jpg">
-                    <img src="/images/NORMAL00042.jpg" alt="NORMAL00042.jpg" loading="lazy">
+                <a href="/images/NORMAL00042.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00042.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00052.jpg" data-fancybox="gallery" data-caption="NORMAL00052.jpg">
-                    <img src="/images/NORMAL00052.jpg" alt="NORMAL00052.jpg" loading="lazy">
+                <a href="/images/NORMAL00052.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00052.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00053.jpg" data-fancybox="gallery" data-caption="NORMAL00053.jpg">
-                    <img src="/images/NORMAL00053.jpg" alt="NORMAL00053.jpg" loading="lazy">
+                <a href="/images/NORMAL00053.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00053.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/NORMAL00105.jpg" data-fancybox="gallery" data-caption="NORMAL00105.jpg">
-                    <img src="/images/NORMAL00105.jpg" alt="NORMAL00105.jpg" loading="lazy">
+                <a href="/images/NORMAL00105.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00105.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/first-date.jpg" data-fancybox="gallery" data-caption="first-date.jpg">
-                    <img src="/images/first-date.jpg" alt="first-date.jpg" loading="lazy">
+                <a href="/images/first-date.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/first-date.jpg" alt="" loading="lazy">
                 </a>
             </div>
         
@@ -239,242 +302,233 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
-        
-        
-        
         const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
         const REST_KEY = 'faf97987bbddd381428a4103e0556ed9'; 
         const BASE_URL = 'https://api.bmobcloud.com/1';
+        let isUserAdmin = false; let currentUser = null;
 
-        
-        let isUserAdmin = false;
-        let currentUser = null;
-
-        
         window.addEventListener('load', () => {
             const loader = document.getElementById('page-loader');
             loader.style.opacity = '0';
             setTimeout(() => {
                 loader.style.display = 'none';
                 AOS.init({ once: true, offset: 60 });
-                
-                
-                checkLocalLogin();
-                
-                loadCloudMessages();
-                
-                startRandomAtmosphere();
+                checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
             }, 600);
         });
 
         
         function bmobRequest(endpoint, method, body=null) {
-            const headers = {
-                'X-Bmob-Application-Id': APP_ID,
-                'X-Bmob-REST-API-Key': REST_KEY,
-                'Content-Type': 'application/json'
-            };
-            
-            if(localStorage.getItem('bmob_session')) {
-                headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
-            }
-
+            const headers = { 'X-Bmob-Application-Id': APP_ID, 'X-Bmob-REST-API-Key': REST_KEY, 'Content-Type': 'application/json' };
+            if(localStorage.getItem('bmob_session')) headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
             const config = { method: method, headers: headers };
             if(body) config.body = JSON.stringify(body);
+            return fetch(BASE_URL + endpoint, config).then(res => { 
+                if(!res.ok) throw new Error(`${res.status} ${res.statusText}`); 
+                return res.json(); 
+            });
+        }
 
-            return fetch(BASE_URL + endpoint, config).then(res => {
-                if(!res.ok) throw new Error(res.statusText);
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if(id === 'login-modal' && currentUser) {
+                if(confirm("确定退出登录吗？")) { localStorage.removeItem('bmob_user'); localStorage.removeItem('bmob_session'); location.reload(); }
+            } else {
+                modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+            }
+        }
+
+        
+        function uploadPhoto() {
+            const fileInput = document.getElementById('photo-file'), captionInput = document.getElementById('photo-caption');
+            const file = fileInput.files[0], caption = captionInput.value.trim() || "美好的瞬间";
+            if(!file) { alert("请选择照片"); return; }
+            const btn = document.getElementById('upload-btn-action'); btn.innerText = "⏳ 上传中..."; btn.disabled = true;
+
+            
+            const parts = file.name.split('.');
+            let fileExt = parts.length > 1 ? parts.pop() : 'jpg'; 
+            const safeFileName = `${Date.now()}_${Math.random().toString(36).substr(2, 6)}.${fileExt}`;
+
+            
+            fetch(`https://api.bmobcloud.com/1/files/${safeFileName}`, {
+                method: "POST",
+                headers: {
+                    "X-Bmob-Application-Id": APP_ID,
+                    "X-Bmob-REST-API-Key": REST_KEY,
+                    "Content-Type": file.type || "image/jpeg"
+                },
+                body: file
+            })
+            .then(res => {
+                if(!res.ok) return res.json().then(err => { throw new Error(err.error || "Upload Error " + res.status) });
                 return res.json();
+            })
+            .then(fileData => {
+                
+                if(!fileData.url) {
+                    alert("Bmob Return: " + JSON.stringify(fileData));
+                    throw new Error("上传成功但未返回URL，请检查控制台");
+                }
+                
+                let safeUrl = fileData.url;
+                if(safeUrl.indexOf('http://') === 0) safeUrl = safeUrl.replace('http://', 'https://');
+
+                return bmobRequest('/classes/Photo', 'POST', { url: safeUrl, caption: caption });
+            })
+            .then(() => { 
+                alert("✨ 上传成功！"); 
+                location.reload(); 
+            })
+            .catch(e => { 
+                console.error(e); 
+                alert("上传失败: " + e.message); 
+                btn.innerText = "☁️ 上传到云相册"; 
+                btn.disabled = false; 
             });
         }
 
         
-        const loginModal = document.getElementById('login-modal');
-        function toggleLoginModal() {
-            if(currentUser) {
-                if(confirm("确定退出登录吗？")) {
-                    localStorage.removeItem('bmob_user');
-                    localStorage.removeItem('bmob_session');
-                    location.reload();
+        function loadCloudPhotos() {
+            bmobRequest('/classes/Photo?order=-createdAt', 'GET').then(data => {
+                if(data.results && data.results.length > 0) {
+                    const gallery = document.getElementById('gallery-grid');
+                    data.results.forEach(photo => {
+                        
+                        if(!photo.url) return;
+                        
+                        let safeUrl = photo.url.replace('http://', 'https://');
+                        const div = document.createElement('div'); div.className = 'gallery-item'; div.setAttribute('data-aos', 'zoom-in');
+                        
+                        let controls = '';
+                        if(isUserAdmin) {
+                            controls = `<div class="photo-controls" onclick="event.stopPropagation()">
+                                <div class="control-btn btn-edit" onclick="openEditPhoto('${photo.objectId}', '${photo.caption}')">✎</div>
+                                <div class="control-btn btn-delete" onclick="deletePhoto('${photo.objectId}', this)">🗑️</div></div>`;
+                        }
+                        div.innerHTML = `${controls}
+                            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}">
+                                <img src="${safeUrl}" alt="${photo.caption}" loading="lazy">
+                            </a>
+                            <div class="photo-caption-text">${photo.caption}</div>`;
+                        gallery.appendChild(div);
+                    });
+                    Fancybox.bind("[data-fancybox]", { Carousel: { infinite: true }, Thumbs: { type: "classic" }, Toolbar: { display: { right: ["close"] } } });
                 }
-            } else {
-                loginModal.style.display = (loginModal.style.display === 'flex') ? 'none' : 'flex';
-            }
+            });
         }
 
+        function openEditPhoto(id, oldCaption) {
+            document.getElementById('edit-photo-id').value = id;
+            document.getElementById('edit-photo-caption').value = oldCaption;
+            toggleModal('edit-modal');
+        }
+        function confirmEditPhoto() {
+            const id = document.getElementById('edit-photo-id').value;
+            const newCaption = document.getElementById('edit-photo-caption').value;
+            bmobRequest(`/classes/Photo/${id}`, 'PUT', { caption: newCaption }).then(() => {
+                alert('修改成功！'); location.reload();
+            }).catch(e => alert('修改失败'));
+        }
+        window.deletePhoto = function(id, btnElement) {
+            if(!confirm("确定要删除这张照片吗？")) return;
+            bmobRequest(`/classes/Photo/${id}`, 'DELETE').then(() => {
+                alert('已删除');
+                btnElement.closest('.gallery-item').remove();
+            }).catch(e => alert('删除失败'));
+        }
+
+        
         function checkLocalLogin() {
             const savedUser = localStorage.getItem('bmob_user');
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
                 if(currentUser.username === 'fangq' || currentUser.isAdmin) {
-                    isUserAdmin = true;
+                    isUserAdmin = true; document.getElementById('upload-trigger').style.display = 'block';
                 }
                 document.getElementById('login-trigger').innerText = "👤 " + currentUser.username;
             }
         }
-
-        function restRegister() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            
-            bmobRequest('/users', 'POST', { 
-                username: u, 
-                password: p, 
-                isAdmin: true 
-            }).then(res => {
-                alert('注册成功！请点击登录');
-            }).catch(e => alert('注册失败: ' + e));
-        }
-
         function restLogin() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            
+            const u = document.getElementById('username').value, p = document.getElementById('password').value;
             bmobRequest(`/login?username=${u}&password=${p}`, 'GET').then(res => {
-                
-                localStorage.setItem('bmob_user', JSON.stringify(res));
-                localStorage.setItem('bmob_session', res.sessionToken);
-                alert('登录成功！');
-                location.reload();
+                localStorage.setItem('bmob_user', JSON.stringify(res)); localStorage.setItem('bmob_session', res.sessionToken);
+                alert('登录成功！'); location.reload();
             }).catch(e => alert('账号或密码错误'));
         }
-
-        
+        function initTypewriter() {
+            const subtitle = document.querySelector('.subtitle'); const text = "记录我们的每一个瞬间"; subtitle.innerText = "";
+            let i = 0; function type() { if (i < text.length) { subtitle.innerText += text.charAt(i); i++; setTimeout(type, 200); } } setTimeout(type, 500);
+        }
+        document.addEventListener('click', function(e) {
+            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn')) return;
+            const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
+            const heart = document.createElement('div'); heart.innerText = '❤'; heart.className = 'click-heart';
+            heart.style.left = e.clientX + 'px'; heart.style.top = e.clientY + 'px';
+            heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+            heart.style.fontSize = Math.random() * 10 + 15 + 'px'; document.body.appendChild(heart); setTimeout(() => heart.remove(), 1000);
+        });
+        let isMoving = false;
+        document.addEventListener('mousemove', function(e) {
+            if (isMoving) return; isMoving = true; setTimeout(() => { isMoving = false; }, 30);
+            const star = document.createElement('div'); star.className = 'magic-particle';
+            const size = Math.random() * 6 + 2; star.style.width = size + 'px'; star.style.height = size + 'px';
+            star.style.background = `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 255, 0.8)`;
+            star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
+        });
         function loadCloudMessages() {
-            
             bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
-                messageList.innerHTML = '';
-                if (!data.results || data.results.length === 0) {
-                    messageList.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
-                } else {
+                const list = document.getElementById('message-list'); list.innerHTML = '';
+                if (!data.results || data.results.length === 0) list.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
+                else {
                     let i = 0;
                     data.results.forEach(item => {
-                        const text = item.content;
-                        const date = item.createdAt.split(' ')[0];
-                        addCardToWall(text, date, item.objectId);
-                        setTimeout(() => shootDanmaku(text), i * 1500);
-                        i++;
+                        addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId);
+                        setTimeout(() => shootDanmaku(item.content), i * 1500); i++;
                     });
                 }
-            }).catch(e => {
-                console.error(e);
-                messageList.innerHTML = '<div style="color:#fff">加载失败，请刷新重试</div>';
             });
         }
-
-        function saveToCloud(text) {
-            bmobRequest('/classes/Danmaku', 'POST', { content: text })
-                .then(res => console.log('Saved'))
-                .catch(e => console.error(e));
-        }
-
+        function saveToCloud(text) { bmobRequest('/classes/Danmaku', 'POST', { content: text }); }
         window.deleteMessage = function(objectId, element) {
             if(!confirm("确定删除吗？")) return;
-            
-            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => {
-                alert('删除成功');
-                element.parentElement.remove();
-            }).catch(e => alert('删除失败，可能无权限'));
+            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => { alert('删除成功'); element.parentElement.remove(); });
         }
-
-        
-        const messageList = document.getElementById('message-list');
-        const dmContainer = document.getElementById('danmaku-container');
-        const dmInput = document.getElementById('dm-input');
-        const dmBtn = document.getElementById('dm-btn');
-
         function addCardToWall(text, dateStr, objectId) {
-            const card = document.createElement('div');
-            card.className = 'message-card';
-            let delBtn = '';
-            
-            if(isUserAdmin && objectId) {
-                delBtn = `<div class="delete-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>`;
-            }
+            const card = document.createElement('div'); card.className = 'message-card';
+            let delBtn = (isUserAdmin && objectId) ? `<div class="delete-msg-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>` : '';
             card.innerHTML = `${delBtn}${text} <span class="message-time">${dateStr}</span>`;
-            if(messageList.firstChild) messageList.insertBefore(card, messageList.firstChild);
-            else messageList.appendChild(card);
+            const list = document.getElementById('message-list');
+            if(list.firstChild) list.insertBefore(card, list.firstChild); else list.appendChild(card);
         }
-
+        const dmContainer = document.getElementById('danmaku-container'), dmInput = document.getElementById('dm-input'), dmBtn = document.getElementById('dm-btn');
         function shootDanmaku(text, isSelf=false) {
-            const dm = document.createElement('div');
-            dm.innerText = text;
-            dm.className = 'danmaku-item';
-            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; 
-            dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
+            const dm = document.createElement('div'); dm.innerText = text; dm.className = 'danmaku-item';
+            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
             if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
-            const duration = Math.random() * 7 + 8; 
-            dm.style.animation = `dmLeft ${duration}s linear forwards`;
-            dmContainer.appendChild(dm);
-            setTimeout(() => dm.remove(), duration * 1000);
+            dm.style.animation = `dmLeft ${Math.random() * 7 + 8}s linear forwards`; dmContainer.appendChild(dm); setTimeout(() => dm.remove(), 15000);
         }
-
-        
-        Fancybox.bind("[data-fancybox]", { 
-            Carousel: { infinite: true }, Thumbs: { type: "classic" }, Toolbar: { display: { right: ["close"] } },
-            on: {
-                "Carousel.ready": () => { document.getElementById('dm-input-area').classList.add('hide-input'); },
-                "close": () => { document.getElementById('dm-input-area').classList.remove('hide-input'); }
-            }
-        });
-
-        
+        Fancybox.bind("[data-fancybox]", { Carousel: { infinite: true }, Thumbs: { type: "classic" }, Toolbar: { display: { right: ["close"] } }, on: { "Carousel.ready": () => { document.getElementById('dm-input-area').classList.add('hide-input'); }, "close": () => { document.getElementById('dm-input-area').classList.remove('hide-input'); } } });
         function updateTimer() {
-            const startDate = new Date("2023-08-21T00:00:00"); 
-            const now = new Date();
-            const diff = now - startDate;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-            document.getElementById("love-timer").innerHTML = `我们已经在一起 ❤️ ${days}天 ${hours}小时 ${minutes}分 ${seconds}秒`;
+            const diff = new Date() - new Date("2023-08-21T00:00:00");
+            document.getElementById("love-timer").innerHTML = `我们已经在一起 ❤️ ${Math.floor(diff / (86400000))}天 ${Math.floor((diff / 3600000) % 24)}小时 ${Math.floor((diff / 60000) % 60)}分 ${Math.floor((diff / 1000) % 60)}秒`;
         }
         setInterval(updateTimer, 1000); updateTimer();
-
-        
-        const btn = document.getElementById('music-btn');
-        const audio = document.getElementById('bg-audio');
-        let isPlaying = false;
-        btn.onclick = () => {
-            if (isPlaying) { audio.pause(); btn.classList.remove('music-playing'); } 
-            else { audio.play(); btn.classList.add('music-playing'); }
-            isPlaying = !isPlaying;
-        };
-
-        
+        const btn = document.getElementById('music-btn'), audio = document.getElementById('bg-audio'); let isPlaying = false;
+        btn.onclick = () => { if (isPlaying) { audio.pause(); btn.classList.remove('music-playing'); } else { audio.play(); btn.classList.add('music-playing'); } isPlaying = !isPlaying; };
         function startRandomAtmosphere() {
             const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
-            setInterval(() => {
-                const msg = presets[Math.floor(Math.random() * presets.length)];
-                shootDanmaku(msg, false); 
-            }, 4000);
+            setInterval(() => { shootDanmaku(presets[Math.floor(Math.random() * presets.length)], false); }, 4000);
         }
-
-        dmBtn.onclick = () => {
-            const text = dmInput.value.trim();
-            if(text) {
-                shootDanmaku(text, true); 
-                const now = new Date().toLocaleDateString();
-                addCardToWall(text, now, null); 
-                saveToCloud(text); 
-                dmInput.value = '';
-            }
-        };
+        dmBtn.onclick = () => { const t = dmInput.value.trim(); if(t) { shootDanmaku(t, true); addCardToWall(t, new Date().toLocaleDateString(), null); saveToCloud(t); dmInput.value = ''; } };
         dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
-
-        
         function createStar() {
-            const star = document.createElement('div');
-            star.className = 'star-style';
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.animation = `starFall ${Math.random() * 3 + 4}s linear forwards`;
-            document.body.appendChild(star);
-            setTimeout(() => star.remove(), 7000);
+            const star = document.createElement('div'); star.className = 'star-style';
+            star.style.left = Math.random() * 100 + 'vw'; star.style.animation = `starFall ${Math.random() * 3 + 4}s linear forwards`;
+            document.body.appendChild(star); setTimeout(() => star.remove(), 7000);
         }
-        const styleSheet = document.createElement("style");
-        styleSheet.innerText = `@keyframes starFall { 0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; } } @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }`;
-        document.head.appendChild(styleSheet);
-        setInterval(createStar, 700);
+        const styleSheet = document.createElement("style"); styleSheet.innerText = `@keyframes starFall { 0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; } } @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }`;
+        document.head.appendChild(styleSheet); setInterval(createStar, 700);
     </script>
 </body>
 </html>
