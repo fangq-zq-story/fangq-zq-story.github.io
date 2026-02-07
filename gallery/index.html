@@ -13,7 +13,6 @@
         :root { --primary-pink: #ff7675; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-         
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.2); }
         ::-webkit-scrollbar-thumb { background: rgba(255, 118, 117, 0.6); border-radius: 10px; }
@@ -29,7 +28,6 @@
             position: relative;
         }
 
-         
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff0f5; z-index: 99999;
@@ -42,7 +40,6 @@
         .loading-text { margin-top: 50px; font-family: 'Ma Shan Zheng', cursive; color: #ff7675; font-size: 1.2rem; animation: blink 2s infinite; }
         @keyframes heartbeat { 0% { transform: rotate(45deg) scale(0.8); } 15% { scale(1); } 100% { scale(0.8); } }
 
-         
         #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
         .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
 
@@ -51,8 +48,7 @@
             position: fixed; top: 20px; right: 20px; z-index: 20000;
             background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px;
             cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-family: sans-serif;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif;
         }
         #login-trigger:hover { background: #fff; transform: translateY(-2px); }
 
@@ -68,7 +64,7 @@
         }
         .login-box h3 { margin-bottom: 20px; color: #ff7675; font-family: 'Ma Shan Zheng', cursive; }
         .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
         .login-btn-submit:hover { background: #ff5252; }
         .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #999; font-size: 1.5rem; }
 
@@ -77,13 +73,10 @@
             position: absolute; top: -8px; right: -8px;
             width: 20px; height: 20px; background: #ff4757; color: white;
             border-radius: 50%; font-size: 12px; line-height: 20px; text-align: center;
-            cursor: pointer; display: none;  
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5;
+            cursor: pointer; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5;
         }
-         
         .message-card:hover .delete-btn.show-admin { display: block; }
 
-         
         #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
         .board-title { text-align: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
@@ -98,7 +91,6 @@
         .message-time { display: block; font-size: 0.7rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-         
         #dm-input-area {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             z-index: 10001; display: flex; align-items: center;
@@ -114,7 +106,6 @@
         #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; font-size: 1rem; transition: transform 0.2s; }
         #dm-btn:active { transform: scale(0.95); }
 
-         
         header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
         h1 { font-family: 'Ma Shan Zheng', cursive; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
         @keyframes textFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -130,28 +121,16 @@
 
         footer { text-align: center; font-family: 'Ma Shan Zheng', cursive; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
 
-         
-        #music-btn {
-            position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer;
-            width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease;
-        }
+        #music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
         .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
         @keyframes recordSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-         
         @media (max-width: 768px) { 
             .gallery-grid { column-count: 2; } h1 { font-size: 2.2rem; } 
-            
             #dm-input-area { width: 92%; bottom: 25px; padding: 8px 8px 8px 20px; }
             #dm-input { width: 100%; font-size: 0.9rem; }
             #message-board-section { padding: 0 20px; }
-
-             
             #music-btn { bottom: auto !important; top: 20px !important; right: 20px !important; width: 40px; height: 40px; font-size: 1.2rem; }
-            
-             
             #login-trigger { top: 25px; right: 70px; padding: 4px 10px; font-size: 0.8rem; }
         }
         
@@ -173,8 +152,7 @@
             <input type="text" id="username" class="login-input" placeholder="账号">
             <input type="password" id="password" class="login-input" placeholder="密码">
             
-            <button class="login-btn-submit" onclick="registerUser()" style="background:#aaa; margin-bottom:10px;">注册(仅第一次用)</button>
-            
+            <button class="login-btn-submit" onclick="registerUser()" style="background:#aaa;">注册(仅第一次用)</button>
             <button class="login-btn-submit" onclick="loginUser()">登录</button>
         </div>
     </div>
@@ -260,6 +238,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/bmob.js-sdk-v4@4.0.0/dist/Bmob-4.0.0.min.js"></script>
 
     <script>
@@ -273,18 +252,19 @@
 
         
         try {
-            Bmob.initialize(SECRET_KEY, API_KEY);
-            console.log("Bmob 初始化成功");
-            
-            
-            let current = Bmob.User.current();
-            if(current) {
-                console.log("已登录:", current.username);
+            if(typeof Bmob !== 'undefined') {
+                Bmob.initialize(SECRET_KEY, API_KEY);
+                console.log("Bmob 初始化成功");
                 
-                if(current.username === 'fangq' || current.isAdmin === true) {
-                    isUserAdmin = true;
-                    document.getElementById('login-trigger').innerText = "👤 " + current.username;
+                let current = Bmob.User.current();
+                if(current) {
+                    if(current.username === 'fangq' || current.isAdmin === true) {
+                        isUserAdmin = true;
+                        document.getElementById('login-trigger').innerText = "👤 " + current.username;
+                    }
                 }
+            } else {
+                console.error("Bmob SDK 加载失败，请检查网络");
             }
         } catch(e) { console.error("Bmob Init Error:", e); }
 
@@ -294,14 +274,17 @@
             setTimeout(() => {
                 loader.style.display = 'none';
                 AOS.init({ once: true, offset: 60 });
-                loadCloudMessages();
+                
+                if(typeof Bmob !== 'undefined') {
+                    loadCloudMessages();
+                }
                 startRandomAtmosphere();
             }, 600);
         });
 
         
         const loginModal = document.getElementById('login-modal');
-        document.getElementById('login-trigger').onclick = () => {
+        function toggleLoginModal() {
             if(Bmob.User.current()) {
                 if(confirm("确定要退出登录吗？")) {
                     Bmob.User.logout();
@@ -310,15 +293,15 @@
             } else {
                 loginModal.style.display = (loginModal.style.display === 'flex') ? 'none' : 'flex';
             }
-        };
+        }
+        document.getElementById('login-trigger').onclick = toggleLoginModal;
 
         function registerUser() {
             let u = document.getElementById('username').value;
             let p = document.getElementById('password').value;
-            
             let params = { username: u, password: p, isAdmin: true }; 
             Bmob.User.register(params).then(res => {
-                alert('注册成功，请点击登录按钮登录');
+                alert('注册成功！');
             }).catch(err => { alert('注册失败:' + err.error); });
         }
 
@@ -395,7 +378,6 @@
         function addCardToWall(text, dateStr, objectId) {
             const card = document.createElement('div');
             card.className = 'message-card';
-            
             let delBtn = '';
             if(isUserAdmin && objectId) {
                 delBtn = `<div class="delete-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>`;
@@ -448,7 +430,6 @@
             if(text) {
                 shootDanmaku(text, true); 
                 const now = new Date().toLocaleDateString();
-                
                 addCardToWall(text, now, null); 
                 saveToCloud(text); 
                 dmInput.value = '';
