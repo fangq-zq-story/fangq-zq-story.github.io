@@ -8,7 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <style>
         :root { --primary-pink: #ff7675; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,7 +30,6 @@
             cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
         }
 
-         
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff0f5; z-index: 99999;
@@ -42,11 +42,9 @@
         .loading-text { margin-top: 50px; font-family: 'Ma Shan Zheng', cursive; color: #ff7675; font-size: 1.2rem; animation: blink 2s infinite; }
         @keyframes heartbeat { 0% { transform: rotate(45deg) scale(0.8); } 15% { scale(1); } 100% { scale(0.8); } }
 
-         
         #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
         .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
 
-         
         .float-btn {
             position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif; padding: 5px 15px; border-radius: 20px;
@@ -57,7 +55,7 @@
         #upload-trigger { 
             top: 20px; left: 20px; 
             background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white;
-            display: none;
+            display: none; 
         }
         #upload-trigger:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(161, 140, 209, 0.4); }
 
@@ -76,7 +74,8 @@
         .btn-delete { background: #ff7675; }
         .btn-edit:hover, .btn-delete:hover { transform: scale(1.1); }
 
-         
+        .sortable-ghost { opacity: 0.4; background: #ffeaa7; }
+
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 20001;
@@ -102,12 +101,20 @@
         .message-card:hover .delete-msg-btn.show-admin { display: block; }
 
          
-        .gallery-grid { column-count: 4; column-gap: 25px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; }
+        .gallery-grid { 
+            column-count: 4; 
+            column-gap: 25px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            position: relative; 
+            z-index: 10; 
+        }
         
         .gallery-item { 
-            break-inside: avoid; margin-bottom: 25px; position: relative; 
-            background-color: #fff; padding: 15px 15px 15px 15px;
-            border-radius: 4px; 
+            break-inside: avoid; 
+            margin-bottom: 25px; 
+            position: relative; 
+            background-color: #fff; padding: 15px; border-radius: 4px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             transition: all 0.4s; 
             display: flex; flex-direction: column; align-items: center;
@@ -119,22 +126,15 @@
         
         .gallery-item img { 
             width: 100%; height: auto; display: block; 
-            border: 1px solid #eee;
-            cursor: zoom-in;
+            border: 1px solid #eee; 
+            cursor: zoom-in; 
         }
 
         .photo-caption-text {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 1.1rem;
-            color: #555; 
-            text-align: center;
-            margin-top: 10px;
-            line-height: 1.4;
-            text-decoration: none;
-            width: 100%;
+            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555; 
+            text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
         }
 
-         
         #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
         .board-title { text-align: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
@@ -164,7 +164,6 @@
         #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; font-size: 1rem; transition: transform 0.2s; }
         #dm-btn:active { transform: scale(0.95); }
 
-         
         header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
         h1 { font-family: 'Ma Shan Zheng', cursive; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
         .subtitle { font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
@@ -192,11 +191,43 @@
         .star-style { position: fixed; top: 0; background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8)); width: 2px; height: 70px; z-index: 1; pointer-events: none; border-radius: 99px; }
         @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
-         
         .click-heart { position: fixed; pointer-events: none; z-index: 99999; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
         @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
         .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
         @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
+
+         
+        #photo-comment-sidebar {
+            position: fixed; top: 0; right: 0; width: 320px; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 999999; 
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        #photo-comment-sidebar.show { transform: translateX(0); }
+        
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        .sidebar-header span { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; }
+        .close-sidebar { cursor: pointer; font-size: 1.5rem; color: #999; line-height: 1; }
+        
+        #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
+        .sidebar-comment-item { margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; animation: popIn 0.3s ease; }
+        .sidebar-comment-content { font-family: 'Noto Serif SC', serif; font-size: 0.9rem; color: #333; word-wrap: break-word; }
+        .sidebar-comment-time { font-size: 0.7rem; color: #ccc; margin-top: 5px; text-align: right; }
+        .sidebar-del-btn { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ff7675; color: white; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; display: none; }
+        .sidebar-comment-item:hover .sidebar-del-btn.show-admin { display: block; }
+
+        .sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; }
+        #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 0.9rem; }
+        #sidebar-input:focus { border-color: #ff7675; }
+        #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
+        
+        @media (max-width: 768px) {
+            #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
+            #photo-comment-sidebar.show { transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -205,6 +236,20 @@
     
     <div id="danmaku-container"></div>
     
+    <div id="photo-comment-sidebar">
+        <div class="sidebar-header">
+            <span>📷 瞬间评论</span>
+            <div class="close-sidebar" onclick="Fancybox.close()">×</div>
+        </div>
+        <div id="sidebar-comment-list">
+            <div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>
+        </div>
+        <div class="sidebar-input-area">
+            <input type="text" id="sidebar-input" placeholder="说说这张照片..." maxlength="50" autocomplete="off" name="comment-text-random">
+            <button id="sidebar-btn" onclick="postSidebarComment()">发送</button>
+        </div>
+    </div>
+
     <div id="login-trigger" class="float-btn" onclick="toggleModal('login-modal')">🔒 管理员</div>
     <div id="upload-trigger" class="float-btn" onclick="toggleModal('upload-modal')">📷 上传照片</div>
 
@@ -256,49 +301,49 @@
                 <a href="/images/NORMAL00022.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00022.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00038.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00038.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00039.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00039.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00042.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00042.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00052.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00052.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00053.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00053.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/NORMAL00105.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/NORMAL00105.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
                 <a href="/images/first-date.jpg" data-fancybox="gallery" data-caption="">
                     <img src="/images/first-date.jpg" alt="" loading="lazy">
                 </a>
-                </div>
+            </div>
         
     </div>
 
@@ -325,9 +370,14 @@
         const REST_KEY = 'b5264160f632cf6751a59de9e3e966b1';
         const BASE_URL = 'https://api.bmobcloud.com/1';
         const PHOTO_TABLE = 'Photo';
+        const COMMENT_TABLE = 'Comment';
         const IMGBB_KEY = '4a29896ebe2442bb3af8ac1e1e6e1453';
 
         let isUserAdmin = false; let currentUser = null;
+        let displayedMessageIds = new Set(); 
+        
+        let currentPhotoId = null;
+        let photoCommentInterval = null;
 
         window.addEventListener('load', () => {
             const loader = document.getElementById('page-loader');
@@ -337,6 +387,14 @@
                 AOS.init({ once: true, offset: 60 });
                 checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
             }, 600);
+        });
+
+        
+        document.getElementById('sidebar-input').addEventListener('keydown', (e) => {
+            e.stopPropagation(); 
+        });
+        document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => {
+            e.stopPropagation(); 
         });
 
         
@@ -385,11 +443,10 @@
                 if(!imgData.success) {
                     throw new Error("图床上传失败: " + (imgData.error ? imgData.error.message : "未知错误"));
                 }
-                
                 const publicUrl = imgData.data.url;
-                
+                const newOrder = Date.now();
                 btn.innerText = "💾 正在保存..."; 
-                return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: publicUrl, caption: caption });
+                return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: publicUrl, caption: caption, order: newOrder });
             })
             .then(() => { 
                 alert("✨ 上传成功！"); 
@@ -405,18 +462,20 @@
 
         
         function loadCloudPhotos() {
-            bmobRequest(`/classes/${PHOTO_TABLE}?order=-createdAt`, 'GET').then(data => {
+            bmobRequest(`/classes/${PHOTO_TABLE}?order=order,-createdAt&limit=500`, 'GET').then(data => {
                 if(data.results && data.results.length > 0) {
                     const gallery = document.getElementById('gallery-grid');
+                    gallery.innerHTML = ''; 
+
                     data.results.forEach(photo => {
                         if(!photo.url) return;
-                        
                         let safeUrl = photo.url;
-                        if(safeUrl.indexOf('http://') === 0) {
-                            safeUrl = safeUrl.replace('http://', 'https://');
-                        }
+                        if(safeUrl.indexOf('http://') === 0) safeUrl = safeUrl.replace('http://', 'https://');
 
-                        const div = document.createElement('div'); div.className = 'gallery-item'; div.setAttribute('data-aos', 'zoom-in');
+                        const div = document.createElement('div'); 
+                        div.className = 'gallery-item'; 
+                        div.setAttribute('data-id', photo.objectId);
+                        div.setAttribute('data-order', photo.order || 0);
                         
                         let controls = '';
                         if(isUserAdmin) {
@@ -426,26 +485,179 @@
                         }
 
                         div.innerHTML = `${controls}
-                            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}">
+                            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
                                 <img src="${safeUrl}" alt="${photo.caption}" loading="lazy">
                             </a>
                             <div class="photo-caption-text">${photo.caption}</div>`;
                         gallery.appendChild(div);
                     });
                     
-                    
                     Fancybox.bind("[data-fancybox]", { 
                         Carousel: { infinite: true }, 
                         Thumbs: { type: "classic" }, 
                         Toolbar: { display: { right: ["close"] } },
+                        
+                        autoFocus: false,
+                        trapFocus: false,
+                        placeFocusBack: false,
                         on: {
-                            "Carousel.ready": () => { 
+                            "Carousel.ready": (fancybox) => { 
                                 document.getElementById('dm-input-area').classList.add('hide-input'); 
+                                const slide = fancybox.getSlide();
+                                if(slide && slide.triggerEl) {
+                                    const pid = slide.triggerEl.dataset.id;
+                                    showPhotoSidebar(pid);
+                                }
+                            },
+                            
+                            "Carousel.change": (fancybox) => {
+                                const currentSlide = fancybox.getSlide();
+                                if(currentSlide && currentSlide.triggerEl) {
+                                    const pid = currentSlide.triggerEl.dataset.id;
+                                    
+                                    if(pid !== currentPhotoId) {
+                                        
+                                        document.getElementById('sidebar-input').value = '';
+                                        showPhotoSidebar(pid);
+                                    }
+                                }
                             },
                             "close": () => { 
                                 document.getElementById('dm-input-area').classList.remove('hide-input'); 
+                                hidePhotoSidebar();
                             }
                         }
+                    });
+                }
+            });
+        }
+
+        
+        function showPhotoSidebar(pid) {
+            currentPhotoId = pid;
+            const sidebar = document.getElementById('photo-comment-sidebar');
+            sidebar.classList.add('show');
+            
+            
+            loadPhotoComments(pid);
+            
+            if(photoCommentInterval) clearInterval(photoCommentInterval);
+            photoCommentInterval = setInterval(() => {
+                if(currentPhotoId) loadPhotoComments(currentPhotoId);
+            }, 4000);
+        }
+
+        function hidePhotoSidebar() {
+            document.getElementById('photo-comment-sidebar').classList.remove('show');
+            currentPhotoId = null;
+            if(photoCommentInterval) clearInterval(photoCommentInterval);
+        }
+
+        
+        function loadPhotoComments(pid) {
+            const where = JSON.stringify({ "photoId": pid });
+            bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
+                const list = document.getElementById('sidebar-comment-list');
+                
+                
+                if(!data.results || data.results.length === 0) {
+                    if(list.children.length === 0 || list.innerText.includes('加载中')) { 
+                        list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
+                    }
+                    
+                    if(list.children.length > 0 && !list.innerText.includes('没有评论')) {
+                         list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
+                    }
+                    return;
+                }
+
+                
+                if(list.innerText.includes('加载中') || list.innerText.includes('还没有评论')) {
+                    list.innerHTML = '';
+                }
+
+                const existingIds = Array.from(list.children).map(el => el.getAttribute('data-cid')).filter(id => id);
+                const newComments = data.results;
+
+                
+                for(let i = newComments.length - 1; i >= 0; i--) {
+                    const comment = newComments[i];
+                    if(!existingIds.includes(comment.objectId)) {
+                        const div = createCommentElement(comment);
+                        list.prepend(div);
+                    }
+                }
+
+                
+                const newIds = newComments.map(c => c.objectId);
+                Array.from(list.children).forEach(child => {
+                    const cid = child.getAttribute('data-cid');
+                    if(cid && !newIds.includes(cid)) {
+                        child.remove();
+                    }
+                });
+            });
+        }
+
+        function createCommentElement(comment) {
+            const div = document.createElement('div');
+            div.className = 'sidebar-comment-item';
+            div.setAttribute('data-cid', comment.objectId); 
+            let delBtn = isUserAdmin ? `<div class="sidebar-del-btn show-admin" onclick="deletePhotoComment('${comment.objectId}')">×</div>` : '';
+            div.innerHTML = `${delBtn}
+                <div class="sidebar-comment-content">${comment.content}</div>
+                <div class="sidebar-comment-time">${comment.createdAt.split(' ')[0]}</div>`;
+            return div;
+        }
+
+        function postSidebarComment() {
+            const input = document.getElementById('sidebar-input');
+            const val = input.value.trim();
+            if(!val) return;
+            if(!currentPhotoId) return;
+
+            const btn = document.getElementById('sidebar-btn');
+            btn.disabled = true; btn.innerText = '...';
+
+            bmobRequest(`/classes/${COMMENT_TABLE}`, 'POST', { content: val, photoId: currentPhotoId }).then(() => {
+                input.value = '';
+                btn.disabled = false; btn.innerText = '发送';
+                
+                input.focus(); 
+                loadPhotoComments(currentPhotoId); 
+            }).catch(() => {
+                btn.disabled = false; btn.innerText = '重试';
+            });
+        }
+
+        window.deletePhotoComment = function(cid) {
+            if(!confirm("删掉这条评论？")) return;
+            bmobRequest(`/classes/${COMMENT_TABLE}/${cid}`, 'DELETE').then(() => {
+                if(currentPhotoId) loadPhotoComments(currentPhotoId);
+            });
+        }
+
+        
+        function initAdminDrag() {
+            const grid = document.getElementById('gallery-grid');
+            new Sortable(grid, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    const items = grid.querySelectorAll('.gallery-item');
+                    const updates = [];
+                    items.forEach((item, index) => {
+                        const objectId = item.getAttribute('data-id');
+                        const newOrder = (index + 1) * 1000; 
+                        updates.push({
+                            "method": "PUT",
+                            "path": `/1/classes/${PHOTO_TABLE}/${objectId}`,
+                            "body": { "order": newOrder }
+                        });
+                    });
+                    const promises = updates.map(req => bmobRequest(`/classes/${PHOTO_TABLE}/${req.path.split('/').pop()}`, 'PUT', req.body));
+                    Promise.all(promises).then(() => {
+                        console.log("顺序保存成功");
                     });
                 }
             });
@@ -471,13 +683,14 @@
             }).catch(e => alert('删除失败'));
         }
 
-        
         function checkLocalLogin() {
             const savedUser = localStorage.getItem('bmob_user');
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
                 if(currentUser.username === 'fangq' || currentUser.isAdmin) {
-                    isUserAdmin = true; document.getElementById('upload-trigger').style.display = 'block';
+                    isUserAdmin = true; 
+                    document.getElementById('upload-trigger').style.display = 'block';
+                    initAdminDrag();
                 }
                 document.getElementById('login-trigger').innerText = "👤 " + currentUser.username;
             }
@@ -494,9 +707,8 @@
             let i = 0; function type() { if (i < text.length) { subtitle.innerText += text.charAt(i); i++; setTimeout(type, 200); } } setTimeout(type, 500);
         }
         
-        
         document.addEventListener('click', function(e) {
-            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn')) return;
+            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar')) return;
             const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
             const heart = document.createElement('div'); heart.innerText = '❤'; heart.className = 'click-heart';
             heart.style.left = e.clientX + 'px'; heart.style.top = e.clientY + 'px';
@@ -515,29 +727,49 @@
         
         function loadCloudMessages() {
             bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
-                const list = document.getElementById('message-list'); list.innerHTML = '';
-                if (!data.results || data.results.length === 0) list.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
-                else {
-                    let i = 0;
+                const list = document.getElementById('message-list'); 
+                if (list.innerHTML.includes('Loading...') && (!data.results || data.results.length === 0)) {
+                    list.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
+                    return;
+                }
+                if (list.innerHTML.includes('Loading...')) list.innerHTML = '';
+                if (data.results && data.results.length > 0) {
+                    let newMessages = [];
                     data.results.forEach(item => {
-                        addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId);
-                        setTimeout(() => shootDanmaku(item.content), i * 1500); i++;
+                        if (!displayedMessageIds.has(item.objectId)) {
+                            displayedMessageIds.add(item.objectId);
+                            newMessages.push(item);
+                        }
                     });
+                    if (newMessages.length > 0) {
+                        newMessages.forEach(item => {
+                            addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId, true);
+                            shootDanmaku(item.content);
+                        });
+                    }
                 }
             });
         }
-        function saveToCloud(text) { bmobRequest('/classes/Danmaku', 'POST', { content: text }); }
+        setInterval(loadCloudMessages, 3000);
+
+        function saveToCloud(text) { bmobRequest('/classes/Danmaku', 'POST', { content: text }).then(() => loadCloudMessages()); } 
         window.deleteMessage = function(objectId, element) {
             if(!confirm("确定删除吗？")) return;
-            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => { alert('删除成功'); element.parentElement.remove(); });
+            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => { 
+                alert('删除成功'); 
+                element.parentElement.remove(); 
+                displayedMessageIds.delete(objectId); 
+            });
         }
-        function addCardToWall(text, dateStr, objectId) {
+        
+        function addCardToWall(text, dateStr, objectId, isPrepend = false) {
             const card = document.createElement('div'); card.className = 'message-card';
             let delBtn = (isUserAdmin && objectId) ? `<div class="delete-msg-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>` : '';
             card.innerHTML = `${delBtn}${text} <span class="message-time">${dateStr}</span>`;
             const list = document.getElementById('message-list');
             if(list.firstChild) list.insertBefore(card, list.firstChild); else list.appendChild(card);
         }
+        
         const dmContainer = document.getElementById('danmaku-container'), dmInput = document.getElementById('dm-input'), dmBtn = document.getElementById('dm-btn');
         function shootDanmaku(text, isSelf=false) {
             const dm = document.createElement('div'); dm.innerText = text; dm.className = 'danmaku-item';
@@ -545,7 +777,6 @@
             if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
             dm.style.animation = `dmLeft ${Math.random() * 7 + 8}s linear forwards`; dmContainer.appendChild(dm); setTimeout(() => dm.remove(), 15000);
         }
-        
         
         function updateTimer() {
             const diff = new Date() - new Date("2023-08-21T00:00:00");
