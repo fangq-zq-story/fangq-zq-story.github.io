@@ -5,19 +5,41 @@ body {
     background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
     background-attachment: fixed;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    /* ✅ 核心修改：全局应用 'Ma Shan Zheng' 艺术字体 */
+    font-family: 'Ma Shan Zheng', 'Noto Serif SC', cursive, serif;
     color: #555;
     padding: 40px 15px;
     overflow-x: hidden;
     position: relative;
+    cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
+    /* ✅ 增加一点文字阴影，让艺术字更清晰 */
+    text-shadow: 0 1px 1px rgba(0,0,0,0.05);
 }
 
+/* 强制让输入框和按钮也继承艺术字体 */
+input, button, textarea, select {
+    font-family: 'Ma Shan Zheng', cursive !important;
+}
+
+/* ✅ 加载动画样式 */
+#page-loader {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #fff0f5; z-index: 99999;
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+    transition: opacity 0.6s ease-out;
+}
+.heart-loader { width: 50px; height: 50px; background: #ff7675; transform: rotate(45deg); animation: heartbeat 1.2s infinite; position: relative; }
+.heart-loader::before, .heart-loader::after { content: ""; width: 50px; height: 50px; background: #ff7675; border-radius: 50%; position: absolute; left: -25px; }
+.heart-loader::after { left: auto; top: -25px; }
+.loading-text { margin-top: 50px; color: #ff7675; font-size: 1.5rem; animation: blink 2s infinite; letter-spacing: 2px; }
+@keyframes heartbeat { 0% { transform: rotate(45deg) scale(0.8); } 15% { scale(1); } 100% { scale(0.8); } }
+
 #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
-.danmaku-item { position: absolute; white-space: nowrap; font-family: cursive, sans-serif; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
+.danmaku-item { position: absolute; white-space: nowrap; font-size: 1.6rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
 
 .float-btn {
-    position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif; padding: 5px 15px; border-radius: 20px;
+    position: fixed; z-index: 20000; cursor: pointer; font-size: 1rem; transition: all 0.3s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px;
 }
 #login-trigger { top: 20px; right: 20px; background: rgba(255,255,255,0.8); }
 #login-trigger:hover { background: #fff; transform: translateY(-2px); }
@@ -56,9 +78,9 @@ body {
     background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px;
     width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
 }
-.modal-box h3 { margin-bottom: 20px; color: #ff7675; font-family: cursive, sans-serif; }
-.modal-input, .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-.modal-btn, .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
+.modal-box h3 { margin-bottom: 20px; color: #ff7675; font-size: 1.5rem; }
+.modal-input, .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; font-size: 1.1rem; }
+.modal-btn, .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; font-size: 1.1rem; }
 .modal-btn:hover, .login-btn-submit:hover { background: #ff5252; }
 .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #999; font-size: 1.5rem; }
 
@@ -78,7 +100,6 @@ body {
     position: relative; 
     z-index: 10; 
 }
-
 .gallery-item { 
     break-inside: avoid; 
     margin-bottom: 25px; 
@@ -88,34 +109,31 @@ body {
     transition: all 0.4s; 
     display: flex; flex-direction: column; align-items: center;
 }
-
 .gallery-item:nth-child(even) { transform: rotate(2deg); }
 .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
 .gallery-item:hover { transform: rotate(0deg) scale(1.05) translateY(-10px) !important; z-index: 20; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
-
 .gallery-item img { 
     width: 100%; height: auto; display: block; 
     border: 1px solid #eee; 
     cursor: zoom-in; 
 }
-
 .photo-caption-text {
-    font-family: cursive, sans-serif; font-size: 1.1rem; color: #555; 
+    font-size: 1.2rem; color: #555; 
     text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
 }
 
 #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
-.board-title { text-align: center; font-family: cursive, sans-serif; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.board-title { text-align: center; font-size: 2.2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
 .message-card {
     background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);
     padding: 15px 25px; border-radius: 15px 15px 15px 0;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    font-family: cursive, sans-serif; font-size: 1.1rem; color: #555;
+    font-size: 1.2rem; color: #555;
     animation: popIn 0.5s ease; max-width: 300px; word-wrap: break-word;
     border: 1px solid rgba(255,255,255,0.9); position: relative;
 }
-.message-time { display: block; font-size: 0.7rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; }
+.message-time { display: block; font-size: 0.8rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; /* 时间保持普通字体清楚些 */ }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 #dm-input-area {
@@ -129,19 +147,30 @@ body {
 }
 .hide-input { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px) !important; }
 #dm-input-area:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-#dm-input { border: none; background: transparent; outline: none; font-family: 'Noto Serif SC', serif; font-size: 1rem; color: #555; width: 220px; }
-#dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: cursive, sans-serif; font-size: 1rem; transition: transform 0.2s; }
+#dm-input { border: none; background: transparent; outline: none; font-size: 1.1rem; color: #555; width: 220px; }
+#dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-size: 1.1rem; transition: transform 0.2s; }
 #dm-btn:active { transform: scale(0.95); }
 
 header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
-h1 { font-family: cursive, sans-serif; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
-.subtitle { font-family: cursive, sans-serif; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
+h1 { 
+    font-size: 4rem; 
+    font-weight: 400; 
+    background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); 
+    background-size: 300%; 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    color: transparent; 
+    animation: textFlow 6s ease-in-out infinite; 
+    filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); 
+    margin-bottom: 10px; 
+}
+.subtitle { font-size: 1.8rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; letter-spacing: 2px;}
 .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; margin-left: 2px; color: #fff; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 @keyframes textFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-#love-timer { font-family: cursive, sans-serif; font-size: 1.2rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+#love-timer { font-size: 1.3rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); letter-spacing: 1px; }
 
-footer { text-align: center; font-family: cursive, sans-serif; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
+footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; font-size: 1.1rem; }
 
 #music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
 .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
@@ -165,7 +194,6 @@ footer { text-align: center; font-family: cursive, sans-serif; color: #fff; padd
 .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
 @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
 
-/* 单图评论区样式 */
 #photo-comment-sidebar {
     position: fixed; top: 0; right: 0; width: 320px; height: 100%;
     background: rgba(255, 255, 255, 0.95);
@@ -178,20 +206,20 @@ footer { text-align: center; font-family: cursive, sans-serif; color: #fff; padd
 #photo-comment-sidebar.show { transform: translateX(0); }
 
 .sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-.sidebar-header span { font-family: cursive, sans-serif; font-size: 1.2rem; color: #ff7675; }
+.sidebar-header span { font-size: 1.3rem; color: #ff7675; }
 .close-sidebar { cursor: pointer; font-size: 1.5rem; color: #999; line-height: 1; }
 
 #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
 .sidebar-comment-item { margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; animation: popIn 0.3s ease; }
-.sidebar-comment-content { font-family: 'Noto Serif SC', serif; font-size: 0.9rem; color: #333; word-wrap: break-word; }
+.sidebar-comment-content { font-size: 1.1rem; color: #333; word-wrap: break-word; }
 .sidebar-comment-time { font-size: 0.7rem; color: #ccc; margin-top: 5px; text-align: right; }
 .sidebar-del-btn { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ff7675; color: white; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; display: none; }
 .sidebar-comment-item:hover .sidebar-del-btn.show-admin { display: block; }
 
 .sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; }
-#sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 0.9rem; }
+#sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 1rem; }
 #sidebar-input:focus { border-color: #ff7675; }
-#sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: cursive, sans-serif; }
+#sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
 
 #comment-toggle-btn {
     position: fixed; bottom: 100px; right: 20px;

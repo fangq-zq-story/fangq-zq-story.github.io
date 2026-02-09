@@ -12,11 +12,26 @@ let displayedMessageIds = new Set();
 let currentPhotoId = null;
 let photoCommentInterval = null;
 
-window.addEventListener('load', () => {
-    // 移除 loading 逻辑，直接初始化
-    AOS.init({ once: true, offset: 60 });
-    checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
-});
+// ✅ 定义一个移除加载动画的函数
+function removeLoader() {
+    const loader = document.getElementById('page-loader');
+    if (loader && loader.style.display !== 'none') {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            // 确保动画初始化，防止因页面未完全加载而错过初始化
+            AOS.init({ once: true, offset: 60 });
+            // 开始其他逻辑
+            checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
+        }, 600);
+    }
+}
+
+// 1. 正常加载完成时触发
+window.addEventListener('load', removeLoader);
+
+// 2. ✅ 安全阀：如果 5 秒还没加载完（比如字体卡住），强制进入！
+setTimeout(removeLoader, 5000);
 
 document.getElementById('sidebar-input').addEventListener('keydown', (e) => { e.stopPropagation(); });
 document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => { e.stopPropagation(); });
