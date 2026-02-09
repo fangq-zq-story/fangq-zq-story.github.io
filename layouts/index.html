@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们的时光印记</title>
+    <title>我们的时光印记 (v2)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
@@ -30,17 +30,7 @@
             cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
         }
 
-        #page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff0f5; z-index: 99999;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            transition: opacity 0.6s ease-out;
-        }
-        .heart-loader { width: 50px; height: 50px; background: #ff7675; transform: rotate(45deg); animation: heartbeat 1.2s infinite; position: relative; }
-        .heart-loader::before, .heart-loader::after { content: ""; width: 50px; height: 50px; background: #ff7675; border-radius: 50%; position: absolute; left: -25px; }
-        .heart-loader::after { left: auto; top: -25px; }
-        .loading-text { margin-top: 50px; font-family: 'Ma Shan Zheng', cursive; color: #ff7675; font-size: 1.2rem; animation: blink 2s infinite; }
-        @keyframes heartbeat { 0% { transform: rotate(45deg) scale(0.8); } 15% { scale(1); } 100% { scale(0.8); } }
+        /* ❌ 注意：我把加载动画的 CSS 全部删除了 */
 
         #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
         .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
@@ -249,8 +239,6 @@
 </head>
 <body>
 
-    <div id="page-loader"><div class="heart-loader"></div><div class="loading-text">正在收集我们的美好回忆...</div></div>
-    
     <div id="danmaku-container"></div>
     
     <div id="comment-toggle-btn" onclick="openSidebarManually()">💬</div>
@@ -344,7 +332,7 @@
     
     <script>
         const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
-        // ✅ 尊重你的原版Key
+        // 使用你的原版 Key
         const REST_KEY = 'b5264160f632cf6751a59de9e3e966b1';
         const BASE_URL = 'https://api.bmobcloud.com/1';
         const PHOTO_TABLE = 'Photo';
@@ -358,28 +346,10 @@
         let photoCommentInterval = null;
 
         window.addEventListener('load', () => {
-            const loader = document.getElementById('page-loader');
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-                AOS.init({ once: true, offset: 60 });
-                checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
-            }, 600);
+            // ❌ 删除了这里的 loader 逻辑，只保留初始化
+            AOS.init({ once: true, offset: 60 });
+            checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
         });
-
-        // ✅ 核心修复：3秒后不管有没有加载完，必须强制关闭 Loading，防止卡死
-        setTimeout(() => {
-            const loader = document.getElementById('page-loader');
-            if(loader && loader.style.display !== 'none') {
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    // 确保 AOS 初始化，万一 load 事件还没触发
-                    AOS.init({ once: true, offset: 60 });
-                    checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
-                }, 600);
-            }
-        }, 3000);
 
         // 核心：阻止输入框事件冒泡，防止 Fancybox 抢焦点
         document.getElementById('sidebar-input').addEventListener('keydown', (e) => {
