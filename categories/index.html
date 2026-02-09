@@ -224,9 +224,27 @@
         #sidebar-input:focus { border-color: #ff7675; }
         #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
         
+         
+        #comment-toggle-btn {
+            position: fixed; bottom: 100px; right: 20px;
+            width: 45px; height: 45px;
+            background: #ff7675; color: white;
+            border-radius: 50%;
+            display: none;  
+            align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
+            z-index: 100000;  
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #comment-toggle-btn:active { transform: scale(0.9); }
+
         @media (max-width: 768px) {
             #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
             #photo-comment-sidebar.show { transform: translateY(0); }
+             
+            #comment-toggle-btn { bottom: 80px; right: 15px; }
         }
     </style>
 </head>
@@ -236,10 +254,12 @@
     
     <div id="danmaku-container"></div>
     
+    <div id="comment-toggle-btn" onclick="openSidebarManually()">💬</div>
+
     <div id="photo-comment-sidebar">
         <div class="sidebar-header">
             <span>📷 瞬间评论</span>
-            <div class="close-sidebar" onclick="Fancybox.close()">×</div>
+            <div class="close-sidebar" onclick="closeSidebarManually()">×</div>
         </div>
         <div id="sidebar-comment-list">
             <div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>
@@ -396,6 +416,10 @@
         document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => {
             e.stopPropagation(); 
         });
+        
+        document.getElementById('comment-toggle-btn').addEventListener('click', (e) => {
+            e.stopPropagation(); 
+        });
 
         
         function bmobRequest(endpoint, method, body=null) {
@@ -496,7 +520,6 @@
                         Carousel: { infinite: true }, 
                         Thumbs: { type: "classic" }, 
                         Toolbar: { display: { right: ["close"] } },
-                        
                         autoFocus: false,
                         trapFocus: false,
                         placeFocusBack: false,
@@ -509,22 +532,21 @@
                                     showPhotoSidebar(pid);
                                 }
                             },
-                            
                             "Carousel.change": (fancybox) => {
                                 const currentSlide = fancybox.getSlide();
                                 if(currentSlide && currentSlide.triggerEl) {
                                     const pid = currentSlide.triggerEl.dataset.id;
-                                    
                                     if(pid !== currentPhotoId) {
-                                        
                                         document.getElementById('sidebar-input').value = '';
-                                        showPhotoSidebar(pid);
+                                        
+                                        
+                                        updateSidebarContent(pid);
                                     }
                                 }
                             },
                             "close": () => { 
                                 document.getElementById('dm-input-area').classList.remove('hide-input'); 
-                                hidePhotoSidebar();
+                                closeSidebarCompletely(); 
                             }
                         }
                     });
@@ -533,24 +555,53 @@
         }
 
         
+        
+        
         function showPhotoSidebar(pid) {
             currentPhotoId = pid;
             const sidebar = document.getElementById('photo-comment-sidebar');
-            sidebar.classList.add('show');
+            const toggleBtn = document.getElementById('comment-toggle-btn');
             
+            sidebar.classList.add('show');
+            toggleBtn.style.display = 'none'; 
             
             loadPhotoComments(pid);
+            startSidebarPolling();
+        }
+        
+        
+        function updateSidebarContent(pid) {
+            currentPhotoId = pid;
+            document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>';
+            loadPhotoComments(pid);
+        }
+
+        
+        function closeSidebarManually() {
+            document.getElementById('photo-comment-sidebar').classList.remove('show');
             
+            document.getElementById('comment-toggle-btn').style.display = 'flex';
+        }
+
+        
+        function openSidebarManually() {
+            document.getElementById('photo-comment-sidebar').classList.add('show');
+            document.getElementById('comment-toggle-btn').style.display = 'none';
+        }
+
+        
+        function closeSidebarCompletely() {
+            document.getElementById('photo-comment-sidebar').classList.remove('show');
+            document.getElementById('comment-toggle-btn').style.display = 'none';
+            currentPhotoId = null;
+            if(photoCommentInterval) clearInterval(photoCommentInterval);
+        }
+
+        function startSidebarPolling() {
             if(photoCommentInterval) clearInterval(photoCommentInterval);
             photoCommentInterval = setInterval(() => {
                 if(currentPhotoId) loadPhotoComments(currentPhotoId);
             }, 4000);
-        }
-
-        function hidePhotoSidebar() {
-            document.getElementById('photo-comment-sidebar').classList.remove('show');
-            currentPhotoId = null;
-            if(photoCommentInterval) clearInterval(photoCommentInterval);
         }
 
         
@@ -559,19 +610,16 @@
             bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
                 const list = document.getElementById('sidebar-comment-list');
                 
-                
                 if(!data.results || data.results.length === 0) {
                     if(list.children.length === 0 || list.innerText.includes('加载中')) { 
                         list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
                     }
-                    
                     if(list.children.length > 0 && !list.innerText.includes('没有评论')) {
                          list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
                     }
                     return;
                 }
 
-                
                 if(list.innerText.includes('加载中') || list.innerText.includes('还没有评论')) {
                     list.innerHTML = '';
                 }
@@ -579,7 +627,6 @@
                 const existingIds = Array.from(list.children).map(el => el.getAttribute('data-cid')).filter(id => id);
                 const newComments = data.results;
 
-                
                 for(let i = newComments.length - 1; i >= 0; i--) {
                     const comment = newComments[i];
                     if(!existingIds.includes(comment.objectId)) {
@@ -588,7 +635,6 @@
                     }
                 }
 
-                
                 const newIds = newComments.map(c => c.objectId);
                 Array.from(list.children).forEach(child => {
                     const cid = child.getAttribute('data-cid');
@@ -622,7 +668,6 @@
             bmobRequest(`/classes/${COMMENT_TABLE}`, 'POST', { content: val, photoId: currentPhotoId }).then(() => {
                 input.value = '';
                 btn.disabled = false; btn.innerText = '发送';
-                
                 input.focus(); 
                 loadPhotoComments(currentPhotoId); 
             }).catch(() => {
@@ -708,7 +753,7 @@
         }
         
         document.addEventListener('click', function(e) {
-            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar')) return;
+            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar') || e.target.closest('#comment-toggle-btn')) return;
             const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
             const heart = document.createElement('div'); heart.innerText = '❤'; heart.className = 'click-heart';
             heart.style.left = e.clientX + 'px'; heart.style.top = e.clientY + 'px';
