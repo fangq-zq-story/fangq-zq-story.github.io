@@ -5,240 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我们的时光印记</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
         :root { --primary-pink: #ff7675; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.2); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 118, 117, 0.6); border-radius: 10px; }
-
         body {
             background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            font-family: 'Noto Serif SC', serif;
+            /* 使用系统字体，加载最快 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
             color: #555;
             padding: 40px 15px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* 移除了 loading 动画，防止卡死 */
+        /* ❌ 我删除了所有 page-loader 的样式，保证不卡屏 */
 
-        #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
-        .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
+        /* 标题样式 */
+        header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
+        h1 { 
+            font-size: 2.8rem; color: #fff; margin-bottom: 10px; font-weight: bold;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
+        .subtitle { font-size: 1.2rem; color: #fff; opacity: 0.9; margin-bottom: 20px; }
+        #love-timer { 
+            font-size: 1.1rem; color: #ff7675; background: rgba(255,255,255,0.95); 
+            padding: 8px 25px; border-radius: 50px; display: inline-block; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+        }
 
-        .float-btn {
-            position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: sans-serif; padding: 5px 15px; border-radius: 20px;
-        }
-        #login-trigger { top: 20px; right: 20px; background: rgba(255,255,255,0.8); }
-        #login-trigger:hover { background: #fff; transform: translateY(-2px); }
-        
-        #upload-trigger { 
-            top: 20px; left: 20px; 
-            background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white;
-            display: none; 
-        }
-        #upload-trigger:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(161, 140, 209, 0.4); }
-
-        .photo-controls {
-            position: absolute; top: 10px; right: 10px; z-index: 30;
-            display: flex; gap: 5px; opacity: 0; transition: opacity 0.3s;
-        }
-        .gallery-item:hover .photo-controls { opacity: 1; }
-        .control-btn {
-            width: 25px; height: 25px; border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center;
-            cursor: pointer; color: white; font-size: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .btn-edit { background: #74b9ff; }
-        .btn-delete { background: #ff7675; }
-        .btn-edit:hover, .btn-delete:hover { transform: scale(1.1); }
-
-        .sortable-ghost { opacity: 0.4; background: #ffeaa7; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 20001;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-box {
-            background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px;
-            width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
-        }
-        .modal-box h3 { margin-bottom: 20px; color: #ff7675; font-family: 'Ma Shan Zheng', cursive; }
-        .modal-input, .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        .modal-btn, .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .modal-btn:hover, .login-btn-submit:hover { background: #ff5252; }
-        .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; color: #999; font-size: 1.5rem; }
-
-        .delete-msg-btn {
-            position: absolute; top: -8px; right: -8px;
-            width: 20px; height: 20px; background: #ff4757; color: white;
-            border-radius: 50%; font-size: 12px; line-height: 20px; text-align: center;
-            cursor: pointer; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5;
-        }
-        .message-card:hover .delete-msg-btn.show-admin { display: block; }
-
+        /* 照片墙样式 (恢复圆角和阴影) */
         .gallery-grid { 
-            column-count: 4; 
-            column-gap: 25px; 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            position: relative; 
-            z-index: 10; 
+            column-count: 2; column-gap: 15px; 
+            max-width: 1400px; margin: 0 auto; position: relative; z-index: 10; 
         }
+        @media (min-width: 768px) { .gallery-grid { column-count: 4; column-gap: 25px; } }
         
         .gallery-item { 
-            break-inside: avoid; 
-            margin-bottom: 25px; 
-            position: relative; 
-            background-color: #fff; padding: 15px; border-radius: 4px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            transition: all 0.4s; 
+            break-inside: avoid; margin-bottom: 20px; 
+            background-color: #fff; padding: 12px; border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            transition: transform 0.3s; 
             display: flex; flex-direction: column; align-items: center;
+            position: relative;
         }
-        
-        .gallery-item:nth-child(even) { transform: rotate(2deg); }
-        .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
-        .gallery-item:hover { transform: rotate(0deg) scale(1.05) translateY(-10px) !important; z-index: 20; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .gallery-item:hover { transform: translateY(-5px); z-index: 20; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
         
         .gallery-item img { 
             width: 100%; height: auto; display: block; 
-            border: 1px solid #eee; 
-            cursor: zoom-in; 
+            border-radius: 8px; cursor: zoom-in; 
         }
-
         .photo-caption-text {
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555; 
-            text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
+            font-size: 1rem; color: #666; text-align: center; margin-top: 10px; width: 100%;
         }
 
-        #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
-        .board-title { text-align: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        /* 留言板 */
+        #message-board-section { max-width: 1000px; margin: 60px auto 100px; position: relative; z-index: 10; }
+        .board-title { text-align: center; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .message-card {
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);
-            padding: 15px 25px; border-radius: 15px 15px 15px 0;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px);
+            padding: 12px 20px; border-radius: 15px 15px 15px 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555;
-            animation: popIn 0.5s ease; max-width: 300px; word-wrap: break-word;
-            border: 1px solid rgba(255,255,255,0.9); position: relative;
+            font-size: 1rem; color: #333;
+            max-width: 300px; word-wrap: break-word;
         }
-        .message-time { display: block; font-size: 0.7rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .message-time { display: block; font-size: 0.7rem; color: #999; margin-top: 5px; text-align: right; }
 
+        /* 底部功能区 */
         #dm-input-area {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             z-index: 10001; display: flex; align-items: center;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
             padding: 5px 5px 5px 20px; border-radius: 50px;
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s;
         }
-        .hide-input { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px) !important; }
-        #dm-input-area:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        #dm-input { border: none; background: transparent; outline: none; font-family: 'Noto Serif SC', serif; font-size: 1rem; color: #555; width: 220px; }
-        #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; font-size: 1rem; transition: transform 0.2s; }
-        #dm-btn:active { transform: scale(0.95); }
+        .hide-input { transform: translateX(-50%) translateY(150%) !important; }
+        #dm-input { border: none; background: transparent; outline: none; font-size: 1rem; color: #555; width: 200px; }
+        #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; }
 
-        header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
-        h1 { font-family: 'Ma Shan Zheng', cursive; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
-        .subtitle { font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
-        .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; margin-left: 2px; color: #fff; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes textFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        #love-timer { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-        footer { text-align: center; font-family: 'Ma Shan Zheng', cursive; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
-
-        #music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
-        .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
-        @keyframes recordSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        @media (max-width: 768px) { 
-            .gallery-grid { column-count: 2; } h1 { font-size: 2.2rem; } 
-            #dm-input-area { width: 92%; bottom: 25px; padding: 8px 8px 8px 20px; }
-            #dm-input { width: 100%; font-size: 0.9rem; }
-            #message-board-section { padding: 0 20px; }
-            #music-btn { bottom: auto !important; top: 20px !important; right: 20px !important; width: 40px; height: 40px; font-size: 1.2rem; }
-            #login-trigger { top: 25px; right: 70px; padding: 4px 10px; font-size: 0.8rem; }
-            #upload-trigger { top: 25px; left: 10px; padding: 4px 10px; font-size: 0.8rem; }
+        /* 悬浮按钮组 */
+        .float-btn {
+            position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 6px 15px; border-radius: 20px;
+            top: 20px;
         }
-        
-        .star-style { position: fixed; top: 0; background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8)); width: 2px; height: 70px; z-index: 1; pointer-events: none; border-radius: 99px; }
-        @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+        #login-trigger { right: 20px; background: rgba(255,255,255,0.9); }
+        #upload-trigger { left: 20px; background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white; display: none; }
 
-        .click-heart { position: fixed; pointer-events: none; z-index: 99999; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
-        .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
-        @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
+        #comment-toggle-btn {
+            position: fixed; bottom: 100px; right: 20px; width: 45px; height: 45px;
+            background: #ff7675; color: white; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            font-size: 20px; box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
+            z-index: 10000; cursor: pointer;
+        }
 
-        /* 单图评论区样式 */
+        #music-btn { 
+            position: fixed; bottom: 100px; right: 20px; width: 45px; height: 45px; 
+            background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 999; font-size: 1.2rem; cursor: pointer;
+        }
+        .music-playing { animation: spin 4s linear infinite; background: #ff7675 !important; color: white !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 侧边栏 */
         #photo-comment-sidebar {
             position: fixed; top: 0; right: 0; width: 320px; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 999999; 
+            background: rgba(255,255,255,0.98); z-index: 99999; 
             box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%); transition: transform 0.3s;
             display: flex; flex-direction: column;
-            backdrop-filter: blur(10px);
         }
         #photo-comment-sidebar.show { transform: translateX(0); }
-        
-        .sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .sidebar-header span { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; }
-        .close-sidebar { cursor: pointer; font-size: 1.5rem; color: #999; line-height: 1; }
-        
-        #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
-        .sidebar-comment-item { margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; animation: popIn 0.3s ease; }
-        .sidebar-comment-content { font-family: 'Noto Serif SC', serif; font-size: 0.9rem; color: #333; word-wrap: break-word; }
-        .sidebar-comment-time { font-size: 0.7rem; color: #ccc; margin-top: 5px; text-align: right; }
-        .sidebar-del-btn { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ff7675; color: white; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; display: none; }
-        .sidebar-comment-item:hover .sidebar-del-btn.show-admin { display: block; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .close-sidebar { cursor: pointer; font-size: 1.5rem; padding: 0 10px; }
+        #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .sidebar-comment-item { margin-bottom: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px; position: relative; }
+        .sidebar-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; }
+        #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; }
+        #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; }
 
-        .sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; }
-        #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 0.9rem; }
-        #sidebar-input:focus { border-color: #ff7675; }
-        #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
-        
-        /* 悬浮切换按钮 */
-        #comment-toggle-btn {
-            position: fixed; bottom: 100px; right: 20px;
-            width: 45px; height: 45px;
-            background: #ff7675; color: white;
-            border-radius: 50%;
-            display: none; 
-            align-items: center; justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
-            z-index: 100000;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #comment-toggle-btn:active { transform: scale(0.9); }
+        /* 弹窗通用 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 20001; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: #fff; padding: 30px; border-radius: 15px; width: 300px; text-align: center; position: relative; }
+        .modal-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .modal-btn { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .close-modal { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 1.5rem; }
+
+        /* 弹幕 */
+        #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 60%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .danmaku-item { position: absolute; white-space: nowrap; color: #fff; font-size: 1.2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); animation: dmRun 10s linear forwards; }
+        @keyframes dmRun { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
 
         @media (max-width: 768px) {
             #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
             #photo-comment-sidebar.show { transform: translateY(0); }
-            #comment-toggle-btn { bottom: 80px; right: 15px; }
+            #comment-toggle-btn, #music-btn { bottom: 80px; }
         }
     </style>
 </head>
 <body>
 
     <div id="danmaku-container"></div>
-    
     <div id="comment-toggle-btn" onclick="openSidebarManually()">💬</div>
 
     <div id="photo-comment-sidebar">
@@ -250,7 +166,7 @@
             <div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>
         </div>
         <div class="sidebar-input-area">
-            <input type="text" id="sidebar-input" placeholder="说说这张照片..." maxlength="50" autocomplete="off" name="comment-text-random">
+            <input type="text" id="sidebar-input" placeholder="说说这张照片..." maxlength="50" autocomplete="off">
             <button id="sidebar-btn" onclick="postSidebarComment()">发送</button>
         </div>
     </div>
@@ -262,9 +178,9 @@
         <div class="modal-box">
             <div class="close-modal" onclick="toggleModal('login-modal')">×</div>
             <h3>管理员登录</h3>
-            <input type="text" id="username" class="login-input" placeholder="账号">
-            <input type="password" id="password" class="login-input" placeholder="密码">
-            <button class="login-btn-submit" onclick="restLogin()">登录</button>
+            <input type="text" id="username" class="modal-input" placeholder="账号">
+            <input type="password" id="password" class="modal-input" placeholder="密码">
+            <button class="modal-btn" onclick="restLogin()">登录</button>
         </div>
     </div>
 
@@ -308,7 +224,7 @@
                 </a>
             </div>
         {{ end }}
-    </div>
+        </div>
 
     <div id="message-board-section" data-aos="fade-up">
         <div class="board-title">✨ 爱的留言墙 ✨</div>
@@ -319,7 +235,6 @@
 
     <footer>
         <p>Made with Love ❤️ For You</p>
-        <p style="font-size: 0.9rem; margin-top: 5px;">© 2023 - Forever</p>
     </footer>
 
     <div id="music-btn">🎵</div>
@@ -330,7 +245,7 @@
     
     <script>
         const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
-        // ✅ 关键修改：换成了你的 Secret Key (2724...)，专治 Vercel 不显示数据
+        // ✅ 修正为 Secret Key，解决 Vercel 无法读取的问题
         const REST_KEY = '2724ee2b975a1ff9';
         const BASE_URL = 'https://api.bmobcloud.com/1';
         const PHOTO_TABLE = 'Photo';
@@ -339,26 +254,35 @@
 
         let isUserAdmin = false; let currentUser = null;
         let displayedMessageIds = new Set(); 
-        
         let currentPhotoId = null;
         let photoCommentInterval = null;
 
-        window.addEventListener('load', () => {
+        // ✅ 立即执行，不等资源，彻底防止卡死
+        document.addEventListener('DOMContentLoaded', () => {
             AOS.init({ once: true, offset: 60 });
-            checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
+            checkLocalLogin(); 
+            // 独立执行，互不影响
+            try { loadCloudMessages(); } catch(e){}
+            try { loadCloudPhotos(); } catch(e){}
+            try { startRandomAtmosphere(); } catch(e){}
+            try { initTypewriter(); } catch(e){}
+            try { setupMusic(); } catch(e){}
         });
 
-        document.getElementById('sidebar-input').addEventListener('keydown', (e) => { e.stopPropagation(); });
-        document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => { e.stopPropagation(); });
-        document.getElementById('comment-toggle-btn').addEventListener('click', (e) => { e.stopPropagation(); });
+        // 阻止冒泡
+        document.getElementById('sidebar-input').addEventListener('keydown', (e) => e.stopPropagation());
+        document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => e.stopPropagation());
+        document.getElementById('comment-toggle-btn').addEventListener('click', (e) => e.stopPropagation());
 
         function bmobRequest(endpoint, method, body=null) {
             const headers = { 'X-Bmob-Application-Id': APP_ID, 'X-Bmob-REST-API-Key': REST_KEY, 'Content-Type': 'application/json' };
+            // 如果安全码已清空，Secret Key 就能工作。如果之前登录过，带上 token
             if(localStorage.getItem('bmob_session')) headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
+            
             const config = { method: method, headers: headers };
             if(body) config.body = JSON.stringify(body);
             return fetch(BASE_URL + endpoint, config).then(res => { 
-                if(!res.ok) throw new Error(`${res.status} ${res.statusText}`); 
+                if(!res.ok) throw new Error("API Error"); 
                 return res.json(); 
             });
         }
@@ -366,111 +290,61 @@
         function toggleModal(id) {
             const modal = document.getElementById(id);
             if(id === 'login-modal' && currentUser) {
-                if(confirm("确定退出登录吗？")) { localStorage.removeItem('bmob_user'); localStorage.removeItem('bmob_session'); location.reload(); }
+                if(confirm("退出登录？")) { localStorage.removeItem('bmob_user'); localStorage.removeItem('bmob_session'); location.reload(); }
             } else {
                 modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
             }
         }
 
         function uploadPhoto() {
-            const fileInput = document.getElementById('photo-file');
-            const captionInput = document.getElementById('photo-caption');
-            const file = fileInput.files[0];
-            const caption = captionInput.value.trim() || "美好的瞬间";
-
+            const file = document.getElementById('photo-file').files[0];
+            const caption = document.getElementById('photo-caption').value.trim() || "美好的瞬间";
             if(!file) { alert("请选择照片"); return; }
             
             const btn = document.getElementById('upload-btn-action'); 
-            btn.innerText = "⏳ 正在上传到图床..."; 
-            btn.disabled = true;
+            btn.innerText = "⏳ 上传中..."; btn.disabled = true;
 
-            const formData = new FormData();
-            formData.append("image", file);
-            
-            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-                method: "POST",
-                body: formData
-            })
+            const formData = new FormData(); formData.append("image", file);
+            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData })
             .then(res => res.json())
             .then(imgData => {
-                if(!imgData.success) {
-                    throw new Error("图床上传失败: " + (imgData.error ? imgData.error.message : "未知错误"));
-                }
-                const publicUrl = imgData.data.url;
-                const newOrder = Date.now();
-                btn.innerText = "💾 正在保存..."; 
-                return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: publicUrl, caption: caption, order: newOrder });
+                if(!imgData.success) throw new Error("图床失败");
+                return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: imgData.data.url, caption: caption, order: Date.now() });
             })
-            .then(() => { 
-                alert("✨ 上传成功！"); 
-                location.reload(); 
-            })
-            .catch(e => { 
-                console.error(e); 
-                alert("上传失败: " + e.message);
-                btn.innerText = "☁️ 上传到云相册"; 
-                btn.disabled = false; 
-            });
+            .then(() => { alert("✨ 成功！"); location.reload(); })
+            .catch(e => { alert("失败: " + e.message); btn.innerText = "☁️ 上传"; btn.disabled = false; });
         }
 
         function loadCloudPhotos() {
             bmobRequest(`/classes/${PHOTO_TABLE}?order=order,-createdAt&limit=500`, 'GET').then(data => {
                 if(data.results && data.results.length > 0) {
                     const gallery = document.getElementById('gallery-grid');
-                    // 不清空，直接追加
                     data.results.forEach(photo => {
                         if(!photo.url) return;
-                        let safeUrl = photo.url;
-                        if(safeUrl.indexOf('http://') === 0) safeUrl = safeUrl.replace('http://', 'https://');
-
-                        const div = document.createElement('div'); 
-                        div.className = 'gallery-item'; 
-                        div.setAttribute('data-id', photo.objectId);
-                        div.setAttribute('data-order', photo.order || 0);
-                        
-                        let controls = '';
-                        if(isUserAdmin) {
-                            controls = `<div class="photo-controls" onclick="event.stopPropagation()">
-                                <div class="control-btn btn-edit" onclick="openEditPhoto('${photo.objectId}', '${photo.caption}')">✎</div>
-                                <div class="control-btn btn-delete" onclick="deletePhoto('${photo.objectId}', this)">🗑️</div></div>`;
-                        }
-
-                        div.innerHTML = `${controls}
-                            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
-                                <img src="${safeUrl}" alt="${photo.caption}" loading="lazy">
-                            </a>
-                            <div class="photo-caption-text">${photo.caption}</div>`;
+                        let safeUrl = photo.url.replace('http://', 'https://');
+                        const div = document.createElement('div'); div.className = 'gallery-item'; div.setAttribute('data-id', photo.objectId);
+                        let controls = isUserAdmin ? `<div style="position:absolute;top:5px;right:5px;z-index:99;background:rgba(0,0,0,0.5);color:white;width:25px;height:25px;border-radius:50%;text-align:center;line-height:25px;cursor:pointer" onclick="deletePhoto('${photo.objectId}', this)">×</div>` : '';
+                        div.innerHTML = `${controls}<a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}"><img src="${safeUrl}" loading="lazy"></a><div class="photo-caption-text">${photo.caption}</div>`;
                         gallery.appendChild(div);
                     });
                     
                     Fancybox.bind("[data-fancybox]", { 
-                        Carousel: { infinite: true }, 
-                        Thumbs: { type: "classic" }, 
                         Toolbar: { display: { right: ["close"] } },
                         autoFocus: false, trapFocus: false, placeFocusBack: false,
                         on: {
                             "Carousel.ready": (fancybox) => { 
                                 document.getElementById('dm-input-area').classList.add('hide-input'); 
                                 const slide = fancybox.getSlide();
-                                if(slide && slide.triggerEl) {
-                                    const pid = slide.triggerEl.dataset.id;
-                                    showPhotoSidebar(pid);
-                                }
+                                if(slide && slide.triggerEl) showPhotoSidebar(slide.triggerEl.dataset.id);
                             },
                             "Carousel.change": (fancybox) => {
                                 const currentSlide = fancybox.getSlide();
                                 if(currentSlide && currentSlide.triggerEl) {
                                     const pid = currentSlide.triggerEl.dataset.id;
-                                    if(pid !== currentPhotoId) {
-                                        document.getElementById('sidebar-input').value = '';
-                                        updateSidebarContent(pid);
-                                    }
+                                    if(pid !== currentPhotoId) { document.getElementById('sidebar-input').value = ''; updateSidebarContent(pid); }
                                 }
                             },
-                            "close": () => { 
-                                document.getElementById('dm-input-area').classList.remove('hide-input'); 
-                                closeSidebarCompletely(); 
-                            }
+                            "close": () => { document.getElementById('dm-input-area').classList.remove('hide-input'); closeSidebarCompletely(); }
                         }
                     });
                 }
@@ -479,141 +353,43 @@
 
         function showPhotoSidebar(pid) {
             currentPhotoId = pid;
-            const sidebar = document.getElementById('photo-comment-sidebar');
-            const toggleBtn = document.getElementById('comment-toggle-btn');
-            sidebar.classList.add('show');
-            toggleBtn.style.display = 'none'; 
-            loadPhotoComments(pid);
-            startSidebarPolling();
-        }
-        
-        function updateSidebarContent(pid) {
-            currentPhotoId = pid;
-            document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>';
-            loadPhotoComments(pid);
-        }
-
-        function closeSidebarManually() {
-            document.getElementById('photo-comment-sidebar').classList.remove('show');
-            document.getElementById('comment-toggle-btn').style.display = 'flex';
-        }
-
-        function openSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.add('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
-        }
-
-        function closeSidebarCompletely() {
-            document.getElementById('photo-comment-sidebar').classList.remove('show');
-            document.getElementById('comment-toggle-btn').style.display = 'none';
-            currentPhotoId = null;
+            loadPhotoComments(pid);
             if(photoCommentInterval) clearInterval(photoCommentInterval);
+            photoCommentInterval = setInterval(() => { if(currentPhotoId) loadPhotoComments(currentPhotoId); }, 4000);
         }
-
-        function startSidebarPolling() {
-            if(photoCommentInterval) clearInterval(photoCommentInterval);
-            photoCommentInterval = setInterval(() => {
-                if(currentPhotoId) loadPhotoComments(currentPhotoId);
-            }, 4000);
-        }
+        function closeSidebarManually() { document.getElementById('photo-comment-sidebar').classList.remove('show'); document.getElementById('comment-toggle-btn').style.display = 'flex'; }
+        function openSidebarManually() { document.getElementById('photo-comment-sidebar').classList.add('show'); document.getElementById('comment-toggle-btn').style.display = 'none'; }
+        function closeSidebarCompletely() { document.getElementById('photo-comment-sidebar').classList.remove('show'); document.getElementById('comment-toggle-btn').style.display = 'none'; currentPhotoId = null; }
+        function updateSidebarContent(pid) { currentPhotoId = pid; document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center;color:#999;margin-top:20px;">加载中...</div>'; loadPhotoComments(pid); }
 
         function loadPhotoComments(pid) {
             const where = JSON.stringify({ "photoId": pid });
             bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
                 const list = document.getElementById('sidebar-comment-list');
-                if(!data.results || data.results.length === 0) {
-                    if(list.children.length === 0 || list.innerText.includes('加载中')) list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
-                    if(list.children.length > 0 && !list.innerText.includes('没有评论')) list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
-                    return;
-                }
-                if(list.innerText.includes('加载中') || list.innerText.includes('还没有评论')) list.innerHTML = '';
-                const existingIds = Array.from(list.children).map(el => el.getAttribute('data-cid')).filter(id => id);
-                const newComments = data.results;
-                for(let i = newComments.length - 1; i >= 0; i--) {
-                    const comment = newComments[i];
-                    if(!existingIds.includes(comment.objectId)) {
-                        const div = createCommentElement(comment);
-                        list.prepend(div);
-                    }
-                }
-                const newIds = newComments.map(c => c.objectId);
-                Array.from(list.children).forEach(child => {
-                    const cid = child.getAttribute('data-cid');
-                    if(cid && !newIds.includes(cid)) child.remove();
+                if(!data.results || data.results.length === 0) { list.innerHTML = '<div style="text-align:center;color:#999;margin-top:20px;">暂无评论</div>'; return; }
+                let html = '';
+                data.results.forEach(c => {
+                    let del = isUserAdmin ? `<span onclick="deletePhotoComment('${c.objectId}')" style="float:right;color:red;cursor:pointer">×</span>` : '';
+                    html += `<div class="sidebar-comment-item">${del}<div style="font-size:0.95rem;word-wrap:break-word;">${c.content}</div><div style="font-size:0.7rem;color:#ccc;text-align:right">${c.createdAt.split(' ')[0]}</div></div>`;
                 });
+                list.innerHTML = html;
             });
-        }
-
-        function createCommentElement(comment) {
-            const div = document.createElement('div');
-            div.className = 'sidebar-comment-item';
-            div.setAttribute('data-cid', comment.objectId); 
-            let delBtn = isUserAdmin ? `<div class="sidebar-del-btn show-admin" onclick="deletePhotoComment('${comment.objectId}')">×</div>` : '';
-            div.innerHTML = `${delBtn}<div class="sidebar-comment-content">${comment.content}</div><div class="sidebar-comment-time">${comment.createdAt.split(' ')[0]}</div>`;
-            return div;
         }
 
         function postSidebarComment() {
             const input = document.getElementById('sidebar-input');
             const val = input.value.trim();
-            if(!val) return;
-            if(!currentPhotoId) return;
-            const btn = document.getElementById('sidebar-btn');
-            btn.disabled = true; btn.innerText = '...';
+            if(!val || !currentPhotoId) return;
             bmobRequest(`/classes/${COMMENT_TABLE}`, 'POST', { content: val, photoId: currentPhotoId }).then(() => {
-                input.value = '';
-                btn.disabled = false; btn.innerText = '发送';
-                input.focus(); 
-                loadPhotoComments(currentPhotoId); 
-            }).catch(() => {
-                btn.disabled = false; btn.innerText = '重试';
+                input.value = ''; input.focus(); loadPhotoComments(currentPhotoId);
             });
         }
-
-        window.deletePhotoComment = function(cid) {
-            if(!confirm("删掉这条评论？")) return;
-            bmobRequest(`/classes/${COMMENT_TABLE}/${cid}`, 'DELETE').then(() => {
-                if(currentPhotoId) loadPhotoComments(currentPhotoId);
-            });
-        }
-
-        function initAdminDrag() {
-            const grid = document.getElementById('gallery-grid');
-            new Sortable(grid, {
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                onEnd: function (evt) {
-                    const items = grid.querySelectorAll('.gallery-item');
-                    const updates = [];
-                    items.forEach((item, index) => {
-                        const objectId = item.getAttribute('data-id');
-                        const newOrder = (index + 1) * 1000; 
-                        updates.push({ "method": "PUT", "path": `/1/classes/${PHOTO_TABLE}/${objectId}`, "body": { "order": newOrder } });
-                    });
-                    const promises = updates.map(req => bmobRequest(`/classes/${PHOTO_TABLE}/${req.path.split('/').pop()}`, 'PUT', req.body));
-                    Promise.all(promises).then(() => { console.log("顺序保存成功"); });
-                }
-            });
-        }
-
-        function openEditPhoto(id, oldCaption) {
-            document.getElementById('edit-photo-id').value = id;
-            document.getElementById('edit-photo-caption').value = oldCaption;
-            toggleModal('edit-modal');
-        }
-        function confirmEditPhoto() {
-            const id = document.getElementById('edit-photo-id').value;
-            const newCaption = document.getElementById('edit-photo-caption').value;
-            bmobRequest(`/classes/${PHOTO_TABLE}/${id}`, 'PUT', { caption: newCaption }).then(() => {
-                alert('修改成功！'); location.reload();
-            }).catch(e => alert('修改失败'));
-        }
-        window.deletePhoto = function(id, btnElement) {
-            if(!confirm("确定要删除这张照片吗？")) return;
-            bmobRequest(`/classes/${PHOTO_TABLE}/${id}`, 'DELETE').then(() => {
-                alert('已删除');
-                btnElement.closest('.gallery-item').remove();
-            }).catch(e => alert('删除失败'));
+        window.deletePhotoComment = function(cid) { if(confirm("删除?")) bmobRequest(`/classes/${COMMENT_TABLE}/${cid}`, 'DELETE').then(() => loadPhotoComments(currentPhotoId)); }
+        window.deletePhoto = function(id, el) { 
+            event.stopPropagation();
+            if(confirm("删除照片?")) bmobRequest(`/classes/${PHOTO_TABLE}/${id}`, 'DELETE').then(() => el.parentElement.remove()); 
         }
 
         function checkLocalLogin() {
@@ -633,103 +409,54 @@
             bmobRequest(`/login?username=${u}&password=${p}`, 'GET').then(res => {
                 localStorage.setItem('bmob_user', JSON.stringify(res)); localStorage.setItem('bmob_session', res.sessionToken);
                 alert('登录成功！'); location.reload();
-            }).catch(e => alert('账号或密码错误'));
-        }
-        function initTypewriter() {
-            const subtitle = document.querySelector('.subtitle'); const text = "记录我们的每一个瞬间"; subtitle.innerText = "";
-            let i = 0; function type() { if (i < text.length) { subtitle.innerText += text.charAt(i); i++; setTimeout(type, 200); } } setTimeout(type, 500);
+            }).catch(e => alert('失败'));
         }
         
-        document.addEventListener('click', function(e) {
-            if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar') || e.target.closest('#comment-toggle-btn')) return;
-            const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
-            const heart = document.createElement('div'); heart.innerText = '❤'; heart.className = 'click-heart';
-            heart.style.left = e.clientX + 'px'; heart.style.top = e.clientY + 'px';
-            heart.style.color = colors[Math.floor(Math.random() * colors.length)];
-            heart.style.fontSize = Math.random() * 10 + 15 + 'px'; document.body.appendChild(heart); setTimeout(() => heart.remove(), 1000);
-        });
-        let isMoving = false;
-        document.addEventListener('mousemove', function(e) {
-            if (isMoving) return; isMoving = true; setTimeout(() => { isMoving = false; }, 30);
-            const star = document.createElement('div'); star.className = 'magic-particle';
-            const size = Math.random() * 6 + 2; star.style.width = size + 'px'; star.style.height = size + 'px';
-            star.style.background = `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 255, 0.8)`;
-            star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
-        });
-
         function loadCloudMessages() {
             bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
                 const list = document.getElementById('message-list'); 
-                if (list.innerHTML.includes('Loading...') && (!data.results || data.results.length === 0)) {
-                    list.innerHTML = '<div style="color:#fff">还没有留言，快来发第一条吧！</div>';
-                    return;
-                }
-                if (list.innerHTML.includes('Loading...')) list.innerHTML = '';
                 if (data.results && data.results.length > 0) {
-                    let newMessages = [];
+                    let html = '';
                     data.results.forEach(item => {
-                        if (!displayedMessageIds.has(item.objectId)) {
-                            displayedMessageIds.add(item.objectId);
-                            newMessages.push(item);
-                        }
+                        shootDanmaku(item.content);
+                        html += `<div class="message-card">${item.content}<div class="message-time">${item.createdAt.split(' ')[0]}</div></div>`;
                     });
-                    if (newMessages.length > 0) {
-                        newMessages.forEach(item => {
-                            addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId, true);
-                            shootDanmaku(item.content);
-                        });
-                    }
+                    list.innerHTML = html;
+                } else {
+                    list.innerHTML = '<div style="color:white">暂无留言</div>';
                 }
             });
         }
-        setInterval(loadCloudMessages, 3000);
 
-        function saveToCloud(text) { bmobRequest('/classes/Danmaku', 'POST', { content: text }).then(() => loadCloudMessages()); } 
-        window.deleteMessage = function(objectId, element) {
-            if(!confirm("确定删除吗？")) return;
-            bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => { 
-                alert('删除成功'); 
-                element.parentElement.remove(); 
-                displayedMessageIds.delete(objectId); 
-            });
-        }
-        
-        function addCardToWall(text, dateStr, objectId, isPrepend = false) {
-            const card = document.createElement('div'); card.className = 'message-card';
-            let delBtn = (isUserAdmin && objectId) ? `<div class="delete-msg-btn show-admin" onclick="deleteMessage('${objectId}', this)">×</div>` : '';
-            card.innerHTML = `${delBtn}${text} <span class="message-time">${dateStr}</span>`;
-            const list = document.getElementById('message-list');
-            if(list.firstChild) list.insertBefore(card, list.firstChild); else list.appendChild(card);
-        }
-        
         const dmContainer = document.getElementById('danmaku-container'), dmInput = document.getElementById('dm-input'), dmBtn = document.getElementById('dm-btn');
-        function shootDanmaku(text, isSelf=false) {
+        function shootDanmaku(text) {
             const dm = document.createElement('div'); dm.innerText = text; dm.className = 'danmaku-item';
-            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
-            if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
-            dm.style.animation = `dmLeft ${Math.random() * 7 + 8}s linear forwards`; dmContainer.appendChild(dm); setTimeout(() => dm.remove(), 15000);
+            dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; 
+            dmContainer.appendChild(dm); setTimeout(() => dm.remove(), 12000);
         }
-        
+        dmBtn.onclick = () => { const t = dmInput.value.trim(); if(t) { shootDanmaku(t); bmobRequest('/classes/Danmaku', 'POST', { content: t }); dmInput.value = ''; } };
+
         function updateTimer() {
             const diff = new Date() - new Date("2023-08-21T00:00:00");
-            document.getElementById("love-timer").innerHTML = `我们已经在一起 ❤️ ${Math.floor(diff / (86400000))}天 ${Math.floor((diff / 3600000) % 24)}小时 ${Math.floor((diff / 60000) % 60)}分 ${Math.floor((diff / 1000) % 60)}秒`;
+            document.getElementById("love-timer").innerHTML = `❤️ 我们已经在一起 ${Math.floor(diff / 86400000)} 天了`;
         }
         setInterval(updateTimer, 1000); updateTimer();
-        const btn = document.getElementById('music-btn'), audio = document.getElementById('bg-audio'); let isPlaying = false;
-        btn.onclick = () => { if (isPlaying) { audio.pause(); btn.classList.remove('music-playing'); } else { audio.play(); btn.classList.add('music-playing'); } isPlaying = !isPlaying; };
+
+        function setupMusic() {
+            const btn = document.getElementById('music-btn'), audio = document.getElementById('bg-audio'); let isPlaying = false;
+            btn.onclick = () => { if (isPlaying) { audio.pause(); btn.classList.remove('music-playing'); } else { audio.play(); btn.classList.add('music-playing'); } isPlaying = !isPlaying; };
+        }
         function startRandomAtmosphere() {
-            const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
-            setInterval(() => { shootDanmaku(presets[Math.floor(Math.random() * presets.length)], false); }, 4000);
+            const presets = ["❤️", "✨", "Love", "🌹", "Forever"];
+            setInterval(() => { shootDanmaku(presets[Math.floor(Math.random() * presets.length)]); }, 3500);
         }
-        dmBtn.onclick = () => { const t = dmInput.value.trim(); if(t) { shootDanmaku(t, true); addCardToWall(t, new Date().toLocaleDateString(), null); saveToCloud(t); dmInput.value = ''; } };
-        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
-        function createStar() {
-            const star = document.createElement('div'); star.className = 'star-style';
-            star.style.left = Math.random() * 100 + 'vw'; star.style.animation = `starFall ${Math.random() * 3 + 4}s linear forwards`;
-            document.body.appendChild(star); setTimeout(() => star.remove(), 7000);
+        function initTypewriter() {
+            const subtitle = document.querySelector('.subtitle'); 
+            if(subtitle) subtitle.innerText = "记录我们的每一个瞬间";
         }
-        const styleSheet = document.createElement("style"); styleSheet.innerText = `@keyframes starFall { 0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; } } @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }`;
-        document.head.appendChild(styleSheet); setInterval(createStar, 700);
+        function initAdminDrag() {
+            new Sortable(document.getElementById('gallery-grid'), { animation: 150 });
+        }
     </script>
 </body>
 </html>
