@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .Title }}</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -22,7 +21,8 @@
             background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            font-family: 'Noto Serif SC', serif;
+            /* ✅ 修改：使用系统默认字体，保证秒开，不依赖谷歌 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
             color: #555;
             padding: 40px 15px;
             overflow-x: hidden;
@@ -39,11 +39,13 @@
         .heart-loader { width: 50px; height: 50px; background: #ff7675; transform: rotate(45deg); animation: heartbeat 1.2s infinite; position: relative; }
         .heart-loader::before, .heart-loader::after { content: ""; width: 50px; height: 50px; background: #ff7675; border-radius: 50%; position: absolute; left: -25px; }
         .heart-loader::after { left: auto; top: -25px; }
-        .loading-text { margin-top: 50px; font-family: 'Ma Shan Zheng', cursive; color: #ff7675; font-size: 1.2rem; animation: blink 2s infinite; }
+        /* ✅ 修改：字体回退到 cursive (手写体) */
+        .loading-text { margin-top: 50px; font-family: cursive, sans-serif; color: #ff7675; font-size: 1.2rem; animation: blink 2s infinite; }
         @keyframes heartbeat { 0% { transform: rotate(45deg) scale(0.8); } 15% { scale(1); } 100% { scale(0.8); } }
 
         #danmaku-container { position: fixed; top: 0; left: 0; width: 100%; height: 70%; z-index: 9998; pointer-events: none; overflow: hidden; }
-        .danmaku-item { position: absolute; white-space: nowrap; font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
+        /* ✅ 修改：字体回退 */
+        .danmaku-item { position: absolute; white-space: nowrap; font-family: cursive, sans-serif; font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); opacity: 0.9; will-change: transform; }
 
         .float-btn {
             position: fixed; z-index: 20000; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;
@@ -86,7 +88,7 @@
             background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px;
             width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
         }
-        .modal-box h3 { margin-bottom: 20px; color: #ff7675; font-family: 'Ma Shan Zheng', cursive; }
+        .modal-box h3 { margin-bottom: 20px; color: #ff7675; font-family: cursive, sans-serif; }
         .modal-input, .login-input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
         .modal-btn, .login-btn-submit { width: 100%; padding: 10px; background: #ff7675; color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
         .modal-btn:hover, .login-btn-submit:hover { background: #ff5252; }
@@ -131,18 +133,18 @@
         }
 
         .photo-caption-text {
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555; 
+            font-family: cursive, sans-serif; font-size: 1.1rem; color: #555; 
             text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
         }
 
         #message-board-section { max-width: 1000px; margin: 60px auto 100px auto; position: relative; z-index: 10; }
-        .board-title { text-align: center; font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .board-title { text-align: center; font-family: cursive, sans-serif; font-size: 2rem; color: #fff; margin-bottom: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .message-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .message-card {
             background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);
             padding: 15px 25px; border-radius: 15px 15px 15px 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            font-family: 'Ma Shan Zheng', cursive; font-size: 1.1rem; color: #555;
+            font-family: cursive, sans-serif; font-size: 1.1rem; color: #555;
             animation: popIn 0.5s ease; max-width: 300px; word-wrap: break-word;
             border: 1px solid rgba(255,255,255,0.9); position: relative;
         }
@@ -161,18 +163,18 @@
         .hide-input { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(20px) !important; }
         #dm-input-area:hover { transform: translateX(-50%) translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         #dm-input { border: none; background: transparent; outline: none; font-family: 'Noto Serif SC', serif; font-size: 1rem; color: #555; width: 220px; }
-        #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; font-size: 1rem; transition: transform 0.2s; }
+        #dm-btn { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; border: none; padding: 8px 25px; border-radius: 30px; margin-left: 10px; cursor: pointer; font-family: cursive, sans-serif; font-size: 1rem; transition: transform 0.2s; }
         #dm-btn:active { transform: scale(0.95); }
 
         header { text-align: center; margin-bottom: 50px; position: relative; z-index: 10; }
-        h1 { font-family: 'Ma Shan Zheng', cursive; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
-        .subtitle { font-family: 'Ma Shan Zheng', cursive; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
+        h1 { font-family: cursive, sans-serif; font-size: 3.8rem; font-weight: 400; background: linear-gradient(45deg, #ff9a9e, #ff6b81, #a18cd1, #fbc2eb, #ff9a9e); background-size: 300%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: textFlow 6s ease-in-out infinite; filter: drop-shadow(0 2px 5px rgba(255, 118, 117, 0.3)); margin-bottom: 10px; }
+        .subtitle { font-family: cursive, sans-serif; font-size: 1.5rem; color: #fff; margin-bottom: 30px; opacity: 0.95; text-shadow: 0 2px 4px rgba(0,0,0,0.1); min-height: 1.5em; }
         .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; margin-left: 2px; color: #fff; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes textFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        #love-timer { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        #love-timer { font-family: cursive, sans-serif; font-size: 1.2rem; color: #ff7675; background: rgba(255,255,255,0.95); padding: 10px 30px; border-radius: 50px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        footer { text-align: center; font-family: 'Ma Shan Zheng', cursive; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
+        footer { text-align: center; font-family: cursive, sans-serif; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; }
 
         #music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
         .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
@@ -209,7 +211,7 @@
         #photo-comment-sidebar.show { transform: translateX(0); }
         
         .sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-        .sidebar-header span { font-family: 'Ma Shan Zheng', cursive; font-size: 1.2rem; color: #ff7675; }
+        .sidebar-header span { font-family: cursive, sans-serif; font-size: 1.2rem; color: #ff7675; }
         .close-sidebar { cursor: pointer; font-size: 1.5rem; color: #999; line-height: 1; }
         
         #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
@@ -222,19 +224,18 @@
         .sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; }
         #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 0.9rem; }
         #sidebar-input:focus { border-color: #ff7675; }
-        #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
+        #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: cursive, sans-serif; }
         
-        /* ✅ 新增：悬浮切换按钮 (默认隐藏，JS控制显示) */
         #comment-toggle-btn {
             position: fixed; bottom: 100px; right: 20px;
             width: 45px; height: 45px;
             background: #ff7675; color: white;
             border-radius: 50%;
-            display: none; /* 默认隐藏 */
+            display: none; 
             align-items: center; justify-content: center;
             font-size: 20px;
             box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
-            z-index: 100000; /* 比 Fancybox 还要高一点 */
+            z-index: 100000; 
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -243,7 +244,6 @@
         @media (max-width: 768px) {
             #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
             #photo-comment-sidebar.show { transform: translateY(0); }
-            /* 手机端按钮位置微调 */
             #comment-toggle-btn { bottom: 80px; right: 15px; }
         }
     </style>
@@ -345,7 +345,7 @@
     
     <script>
         const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
-        // ✅ 关键修改：换成了你的 Secret Key (2724...)，专治 Vercel 不显示数据
+        // ✅ 这里是关键！换成了你的 Secret Key，专治不显示云照片！
         const REST_KEY = '2724ee2b975a1ff9';
         const BASE_URL = 'https://api.bmobcloud.com/1';
         const PHOTO_TABLE = 'Photo';
@@ -360,9 +360,13 @@
 
         window.addEventListener('load', () => {
             const loader = document.getElementById('page-loader');
-            // ✅ 加了5秒强制进入的保险，防止 Google 字体卡死
+            
+            // ✅ 5秒强制进场保险 (防止字体加载卡死)
             setTimeout(() => {
-                if(loader) loader.style.display = 'none';
+                if(loader && loader.style.display !== 'none') {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 600);
+                }
             }, 5000);
 
             loader.style.opacity = '0';
@@ -373,19 +377,10 @@
             }, 600);
         });
 
-        // 核心：阻止输入框事件冒泡，防止 Fancybox 抢焦点
-        document.getElementById('sidebar-input').addEventListener('keydown', (e) => {
-            e.stopPropagation(); 
-        });
-        document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => {
-            e.stopPropagation(); 
-        });
-        // ✅ 防止点击悬浮按钮时触发 Fancybox 关闭
-        document.getElementById('comment-toggle-btn').addEventListener('click', (e) => {
-            e.stopPropagation(); 
-        });
+        document.getElementById('sidebar-input').addEventListener('keydown', (e) => { e.stopPropagation(); });
+        document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => { e.stopPropagation(); });
+        document.getElementById('comment-toggle-btn').addEventListener('click', (e) => { e.stopPropagation(); });
 
-        // --- Bmob 请求 ---
         function bmobRequest(endpoint, method, body=null) {
             const headers = { 'X-Bmob-Application-Id': APP_ID, 'X-Bmob-REST-API-Key': REST_KEY, 'Content-Type': 'application/json' };
             if(localStorage.getItem('bmob_session')) headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
@@ -406,7 +401,6 @@
             }
         }
 
-        // --- 上传 ---
         function uploadPhoto() {
             const fileInput = document.getElementById('photo-file');
             const captionInput = document.getElementById('photo-caption');
@@ -448,13 +442,11 @@
             });
         }
 
-        // --- 加载照片 ---
         function loadCloudPhotos() {
             bmobRequest(`/classes/${PHOTO_TABLE}?order=order,-createdAt&limit=500`, 'GET').then(data => {
                 if(data.results && data.results.length > 0) {
                     const gallery = document.getElementById('gallery-grid');
-                    gallery.innerHTML = ''; 
-
+                    // 注意：不再清空 gallery，而是追加
                     data.results.forEach(photo => {
                         if(!photo.url) return;
                         let safeUrl = photo.url;
@@ -484,9 +476,7 @@
                         Carousel: { infinite: true }, 
                         Thumbs: { type: "classic" }, 
                         Toolbar: { display: { right: ["close"] } },
-                        autoFocus: false,
-                        trapFocus: false,
-                        placeFocusBack: false,
+                        autoFocus: false, trapFocus: false, placeFocusBack: false,
                         on: {
                             "Carousel.ready": (fancybox) => { 
                                 document.getElementById('dm-input-area').classList.add('hide-input'); 
@@ -502,15 +492,13 @@
                                     const pid = currentSlide.triggerEl.dataset.id;
                                     if(pid !== currentPhotoId) {
                                         document.getElementById('sidebar-input').value = '';
-                                        // 切换照片时，先隐藏，再显示，确保逻辑正确
-                                        // 这里简单处理：直接更新内容
                                         updateSidebarContent(pid);
                                     }
                                 }
                             },
                             "close": () => { 
                                 document.getElementById('dm-input-area').classList.remove('hide-input'); 
-                                closeSidebarCompletely(); // 彻底关闭
+                                closeSidebarCompletely(); 
                             }
                         }
                     });
@@ -518,42 +506,32 @@
             });
         }
 
-        // --- ✅ 单图评论区逻辑 (含悬浮按钮) ---
-        
-        // 1. 打开大图时，或者切换照片时调用
         function showPhotoSidebar(pid) {
             currentPhotoId = pid;
             const sidebar = document.getElementById('photo-comment-sidebar');
             const toggleBtn = document.getElementById('comment-toggle-btn');
-            
             sidebar.classList.add('show');
-            toggleBtn.style.display = 'none'; // 打开侧边栏，隐藏按钮
-            
+            toggleBtn.style.display = 'none'; 
             loadPhotoComments(pid);
             startSidebarPolling();
         }
         
-        // 2. 仅仅更新内容（用于切换照片，不涉及按钮逻辑）
         function updateSidebarContent(pid) {
             currentPhotoId = pid;
             document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>';
             loadPhotoComments(pid);
         }
 
-        // 3. 手动点击“×”关闭侧边栏（进入“隐藏模式”）
         function closeSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
-            // 显示悬浮按钮
             document.getElementById('comment-toggle-btn').style.display = 'flex';
         }
 
-        // 4. 手动点击“💬”按钮（恢复侧边栏）
         function openSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.add('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
         }
 
-        // 5. 彻底关闭（Fancybox关闭时调用）
         function closeSidebarCompletely() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
@@ -568,29 +546,18 @@
             }, 4000);
         }
 
-        // 核心：对比更新，不闪烁
         function loadPhotoComments(pid) {
             const where = JSON.stringify({ "photoId": pid });
             bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
                 const list = document.getElementById('sidebar-comment-list');
-                
                 if(!data.results || data.results.length === 0) {
-                    if(list.children.length === 0 || list.innerText.includes('加载中')) { 
-                        list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
-                    }
-                    if(list.children.length > 0 && !list.innerText.includes('没有评论')) {
-                         list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
-                    }
+                    if(list.children.length === 0 || list.innerText.includes('加载中')) list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
+                    if(list.children.length > 0 && !list.innerText.includes('没有评论')) list.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">还没有评论，快来抢沙发~</div>';
                     return;
                 }
-
-                if(list.innerText.includes('加载中') || list.innerText.includes('还没有评论')) {
-                    list.innerHTML = '';
-                }
-
+                if(list.innerText.includes('加载中') || list.innerText.includes('还没有评论')) list.innerHTML = '';
                 const existingIds = Array.from(list.children).map(el => el.getAttribute('data-cid')).filter(id => id);
                 const newComments = data.results;
-
                 for(let i = newComments.length - 1; i >= 0; i--) {
                     const comment = newComments[i];
                     if(!existingIds.includes(comment.objectId)) {
@@ -598,13 +565,10 @@
                         list.prepend(div);
                     }
                 }
-
                 const newIds = newComments.map(c => c.objectId);
                 Array.from(list.children).forEach(child => {
                     const cid = child.getAttribute('data-cid');
-                    if(cid && !newIds.includes(cid)) {
-                        child.remove();
-                    }
+                    if(cid && !newIds.includes(cid)) child.remove();
                 });
             });
         }
@@ -614,9 +578,7 @@
             div.className = 'sidebar-comment-item';
             div.setAttribute('data-cid', comment.objectId); 
             let delBtn = isUserAdmin ? `<div class="sidebar-del-btn show-admin" onclick="deletePhotoComment('${comment.objectId}')">×</div>` : '';
-            div.innerHTML = `${delBtn}
-                <div class="sidebar-comment-content">${comment.content}</div>
-                <div class="sidebar-comment-time">${comment.createdAt.split(' ')[0]}</div>`;
+            div.innerHTML = `${delBtn}<div class="sidebar-comment-content">${comment.content}</div><div class="sidebar-comment-time">${comment.createdAt.split(' ')[0]}</div>`;
             return div;
         }
 
@@ -625,10 +587,8 @@
             const val = input.value.trim();
             if(!val) return;
             if(!currentPhotoId) return;
-
             const btn = document.getElementById('sidebar-btn');
             btn.disabled = true; btn.innerText = '...';
-
             bmobRequest(`/classes/${COMMENT_TABLE}`, 'POST', { content: val, photoId: currentPhotoId }).then(() => {
                 input.value = '';
                 btn.disabled = false; btn.innerText = '发送';
@@ -646,7 +606,6 @@
             });
         }
 
-        // --- 拖拽 ---
         function initAdminDrag() {
             const grid = document.getElementById('gallery-grid');
             new Sortable(grid, {
@@ -658,16 +617,10 @@
                     items.forEach((item, index) => {
                         const objectId = item.getAttribute('data-id');
                         const newOrder = (index + 1) * 1000; 
-                        updates.push({
-                            "method": "PUT",
-                            "path": `/1/classes/${PHOTO_TABLE}/${objectId}`,
-                            "body": { "order": newOrder }
-                        });
+                        updates.push({ "method": "PUT", "path": `/1/classes/${PHOTO_TABLE}/${objectId}`, "body": { "order": newOrder } });
                     });
                     const promises = updates.map(req => bmobRequest(`/classes/${PHOTO_TABLE}/${req.path.split('/').pop()}`, 'PUT', req.body));
-                    Promise.all(promises).then(() => {
-                        console.log("顺序保存成功");
-                    });
+                    Promise.all(promises).then(() => { console.log("顺序保存成功"); });
                 }
             });
         }
@@ -733,7 +686,6 @@
             star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
         });
 
-        // 智能无感更新（主留言墙）
         function loadCloudMessages() {
             bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
                 const list = document.getElementById('message-list'); 
