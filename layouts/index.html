@@ -30,6 +30,7 @@
             cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
         }
 
+        /* 加载动画 */
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff0f5; z-index: 99999;
@@ -224,17 +225,17 @@
         #sidebar-input:focus { border-color: #ff7675; }
         #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
         
-        /* ✅ 新增：悬浮切换按钮 (默认隐藏，JS控制显示) */
+        /* 悬浮切换按钮 */
         #comment-toggle-btn {
             position: fixed; bottom: 100px; right: 20px;
             width: 45px; height: 45px;
             background: #ff7675; color: white;
             border-radius: 50%;
-            display: none; /* 默认隐藏 */
+            display: none; 
             align-items: center; justify-content: center;
             font-size: 20px;
             box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
-            z-index: 100000; /* 比 Fancybox 还要高一点 */
+            z-index: 100000;
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -243,7 +244,6 @@
         @media (max-width: 768px) {
             #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
             #photo-comment-sidebar.show { transform: translateY(0); }
-            /* 手机端按钮位置微调 */
             #comment-toggle-btn { bottom: 80px; right: 15px; }
         }
     </style>
@@ -345,7 +345,8 @@
     
     <script>
         const APP_ID = '1bb3a23f54f31dadc50f15ce6608a9f5'; 
-        const REST_KEY = 'b5264160f632cf6751a59de9e3e966b1';
+        // ✅ 修正为正确Key：faf97987bbddd381428a4103e0556ed9
+        const REST_KEY = 'faf97987bbddd381428a4103e0556ed9';
         const BASE_URL = 'https://api.bmobcloud.com/1';
         const PHOTO_TABLE = 'Photo';
         const COMMENT_TABLE = 'Comment';
@@ -366,6 +367,12 @@
                 checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
             }, 600);
         });
+        
+        // ✅ 保险：3秒后强制消除 Loading，防止网络卡死进不去
+        setTimeout(() => {
+            const loader = document.getElementById('page-loader');
+            if(loader) loader.style.display = 'none';
+        }, 3000);
 
         // 核心：阻止输入框事件冒泡，防止 Fancybox 抢焦点
         document.getElementById('sidebar-input').addEventListener('keydown', (e) => {
@@ -374,7 +381,6 @@
         document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => {
             e.stopPropagation(); 
         });
-        // ✅ 防止点击悬浮按钮时触发 Fancybox 关闭
         document.getElementById('comment-toggle-btn').addEventListener('click', (e) => {
             e.stopPropagation(); 
         });
@@ -496,15 +502,13 @@
                                     const pid = currentSlide.triggerEl.dataset.id;
                                     if(pid !== currentPhotoId) {
                                         document.getElementById('sidebar-input').value = '';
-                                        // 切换照片时，先隐藏，再显示，确保逻辑正确
-                                        // 这里简单处理：直接更新内容
                                         updateSidebarContent(pid);
                                     }
                                 }
                             },
                             "close": () => { 
                                 document.getElementById('dm-input-area').classList.remove('hide-input'); 
-                                closeSidebarCompletely(); // 彻底关闭
+                                closeSidebarCompletely(); 
                             }
                         }
                     });
@@ -512,42 +516,34 @@
             });
         }
 
-        // --- ✅ 单图评论区逻辑 (含悬浮按钮) ---
+        // --- 单图评论区逻辑 ---
         
-        // 1. 打开大图时，或者切换照片时调用
         function showPhotoSidebar(pid) {
             currentPhotoId = pid;
             const sidebar = document.getElementById('photo-comment-sidebar');
             const toggleBtn = document.getElementById('comment-toggle-btn');
-            
             sidebar.classList.add('show');
-            toggleBtn.style.display = 'none'; // 打开侧边栏，隐藏按钮
-            
+            toggleBtn.style.display = 'none'; 
             loadPhotoComments(pid);
             startSidebarPolling();
         }
         
-        // 2. 仅仅更新内容（用于切换照片，不涉及按钮逻辑）
         function updateSidebarContent(pid) {
             currentPhotoId = pid;
             document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>';
             loadPhotoComments(pid);
         }
 
-        // 3. 手动点击“×”关闭侧边栏（进入“隐藏模式”）
         function closeSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
-            // 显示悬浮按钮
             document.getElementById('comment-toggle-btn').style.display = 'flex';
         }
 
-        // 4. 手动点击“💬”按钮（恢复侧边栏）
         function openSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.add('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
         }
 
-        // 5. 彻底关闭（Fancybox关闭时调用）
         function closeSidebarCompletely() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
@@ -562,7 +558,6 @@
             }, 4000);
         }
 
-        // 核心：对比更新，不闪烁
         function loadPhotoComments(pid) {
             const where = JSON.stringify({ "photoId": pid });
             bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
