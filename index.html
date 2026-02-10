@@ -7,7 +7,6 @@
     <title>我们的时光印记</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -45,9 +44,9 @@
         <div class="modal-box">
             <div class="close-modal" onclick="toggleModal('login-modal')">×</div>
             <h3>管理员登录</h3>
-            <input type="text" id="username" class="login-input" placeholder="账号">
-            <input type="password" id="password" class="login-input" placeholder="密码">
-            <button class="login-btn-submit" onclick="restLogin()">登录</button>
+            <input type="text" id="username" class="modal-input" placeholder="账号">
+            <input type="password" id="password" class="modal-input" placeholder="密码">
+            <button class="modal-btn" onclick="restLogin()">登录</button>
         </div>
     </div>
 
@@ -97,8 +96,17 @@
         <p style="font-size: 0.9rem; margin-top: 5px;">© 2023 - Forever</p>
     </footer>
 
+    <div id="music-playlist" class="music-playlist">
+        <div class="playlist-header">🎵 播放列表</div>
+        <ul id="playlist-ul">
+            </ul>
+        <div class="playlist-control">
+            <button onclick="togglePlayPause()" id="mini-control-btn">暂停/播放</button>
+        </div>
+    </div>
+
     <div id="music-btn">🎵</div>
-    <audio id="bg-audio" src="/music/love.mp3" loop></audio>
+    <audio id="bg-audio" loop></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

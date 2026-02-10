@@ -5,23 +5,19 @@ body {
     background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
     background-attachment: fixed;
     min-height: 100vh;
-    /* ✅ 核心修改：全局应用 'Ma Shan Zheng' 艺术字体 */
     font-family: 'Ma Shan Zheng', 'Noto Serif SC', cursive, serif;
     color: #555;
     padding: 40px 15px;
     overflow-x: hidden;
     position: relative;
     cursor: url('https://cdn.jsdelivr.net/gh/fz6m/Private-web@1.5/image/cursor/normal.cur'), auto;
-    /* ✅ 增加一点文字阴影，让艺术字更清晰 */
     text-shadow: 0 1px 1px rgba(0,0,0,0.05);
 }
 
-/* 强制让输入框和按钮也继承艺术字体 */
 input, button, textarea, select {
     font-family: 'Ma Shan Zheng', cursive !important;
 }
 
-/* ✅ 加载动画样式 */
 #page-loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #fff0f5; z-index: 99999;
@@ -133,7 +129,7 @@ input, button, textarea, select {
     animation: popIn 0.5s ease; max-width: 300px; word-wrap: break-word;
     border: 1px solid rgba(255,255,255,0.9); position: relative;
 }
-.message-time { display: block; font-size: 0.8rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; /* 时间保持普通字体清楚些 */ }
+.message-time { display: block; font-size: 0.8rem; color: #999; margin-top: 5px; text-align: right; font-family: sans-serif; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 #dm-input-area {
@@ -172,16 +168,72 @@ h1 {
 
 footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; font-size: 1.1rem; }
 
-#music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
+/* ✅ 右下角悬浮按钮 */
+#music-btn { 
+    position: fixed; 
+    bottom: 40px; 
+    right: 40px; 
+    z-index: 20000; 
+    cursor: pointer; 
+    width: 50px; height: 50px; 
+    background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); 
+    font-size: 1.5rem; 
+    color: white; 
+    transition: all 0.3s ease; 
+}
 .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
 @keyframes recordSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ✅ 音乐列表：强制样式，解决长条问题 */
+.music-playlist {
+    position: fixed;
+    bottom: 110px; 
+    right: 40px;   
+    width: 240px !important; 
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    z-index: 20001; 
+    padding: 15px;
+    display: none; /* 默认隐藏 */
+    flex-direction: column;
+    animation: fadeInUp 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.8);
+}
+/* 只有当 JS 给它加上 show 类时才显示 */
+.music-playlist.show { display: flex !important; }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.playlist-header { font-size: 1.1rem; color: #ff7675; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+#playlist-ul { list-style: none; margin-bottom: 10px; padding: 0; }
+#playlist-ul li {
+    padding: 8px 10px; border-radius: 8px; cursor: pointer; color: #555; font-size: 0.95rem; transition: all 0.2s; display: flex; align-items: center;
+}
+#playlist-ul li:hover { background: #fff0f5; color: #ff7675; }
+#playlist-ul li.active { background: linear-gradient(45deg, #ff9a9e, #ff6b81); color: white; }
+#playlist-ul li .playing-icon { margin-right: 8px; font-size: 0.8rem; display: none; }
+#playlist-ul li.active .playing-icon { display: inline; }
+
+.playlist-control { border-top: 1px solid #eee; padding-top: 10px; text-align: center; }
+#mini-control-btn {
+    background: #f0f0f0; color: #555; border: none;
+    padding: 5px 0; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+    width: 100%; border-radius: 5px;
+}
+#mini-control-btn:hover { background: #e0e0e0; }
 
 @media (max-width: 768px) { 
     .gallery-grid { column-count: 2; } h1 { font-size: 2.2rem; } 
     #dm-input-area { width: 92%; bottom: 25px; padding: 8px 8px 8px 20px; }
     #dm-input { width: 100%; font-size: 0.9rem; }
     #message-board-section { padding: 0 20px; }
-    #music-btn { bottom: auto !important; top: 20px !important; right: 20px !important; width: 40px; height: 40px; font-size: 1.2rem; }
+    #music-btn { right: 20px; bottom: 80px; width: 45px; height: 45px; } 
+    .music-playlist { right: 20px; bottom: 140px; }
     #login-trigger { top: 25px; right: 70px; padding: 4px 10px; font-size: 0.8rem; }
     #upload-trigger { top: 25px; left: 10px; padding: 4px 10px; font-size: 0.8rem; }
 }

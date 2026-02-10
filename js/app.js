@@ -11,6 +11,10 @@ let displayedMessageIds = new Set();
 
 let currentPhotoId = null;
 let photoCommentInterval = null;
+let danmakuLaneIndex = 0;
+
+// ✅ 新增：弹幕排队队列
+let danmakuQueue = []; 
 
 // ✅ 定义一个移除加载动画的函数
 function removeLoader() {
@@ -19,19 +23,17 @@ function removeLoader() {
         loader.style.opacity = '0';
         setTimeout(() => {
             loader.style.display = 'none';
-            // 确保动画初始化，防止因页面未完全加载而错过初始化
             AOS.init({ once: true, offset: 60 });
-            // 开始其他逻辑
-            checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); startRandomAtmosphere(); initTypewriter();
+            checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); initTypewriter();
+            initMusicPlayer();
+            // ✅ 启动弹幕调度器（交通管制中心）
+            startDanmakuScheduler(); 
         }, 600);
     }
 }
 
-// 1. 正常加载完成时触发
 window.addEventListener('load', removeLoader);
-
-// 2. ✅ 安全阀：如果 5 秒还没加载完（比如字体卡住），强制进入！
-setTimeout(removeLoader, 5000);
+setTimeout(removeLoader, 5000); 
 
 document.getElementById('sidebar-input').addEventListener('keydown', (e) => { e.stopPropagation(); });
 document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => { e.stopPropagation(); });
@@ -136,7 +138,8 @@ function loadCloudPhotos() {
                 placeFocusBack: false,
                 on: {
                     "Carousel.ready": (fancybox) => { 
-                        document.getElementById('dm-input-area').classList.add('hide-input'); 
+                        const dmArea = document.getElementById('dm-input-area');
+                        if(dmArea) dmArea.classList.add('hide-input'); 
                         const slide = fancybox.getSlide();
                         if(slide && slide.triggerEl) {
                             const pid = slide.triggerEl.dataset.id;
@@ -154,7 +157,8 @@ function loadCloudPhotos() {
                         }
                     },
                     "close": () => { 
-                        document.getElementById('dm-input-area').classList.remove('hide-input'); 
+                        const dmArea = document.getElementById('dm-input-area');
+                        if(dmArea) dmArea.classList.remove('hide-input'); 
                         closeSidebarCompletely(); 
                     }
                 }
@@ -327,7 +331,7 @@ function initTypewriter() {
 }
 
 document.addEventListener('click', function(e) {
-    if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar') || e.target.closest('#comment-toggle-btn')) return;
+    if(e.target.closest('.modal-box') || e.target.closest('.float-btn') || e.target.closest('.control-btn') || e.target.closest('#photo-comment-sidebar') || e.target.closest('#comment-toggle-btn') || e.target.closest('#music-playlist') || e.target.id === 'music-btn') return;
     const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
     const heart = document.createElement('div'); heart.innerText = '❤'; heart.className = 'click-heart';
     heart.style.left = e.clientX + 'px'; heart.style.top = e.clientY + 'px';
@@ -343,6 +347,7 @@ document.addEventListener('mousemove', function(e) {
     star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
 });
 
+// ✅ 弹幕逻辑：从云端拉取数据，但不直接发射，而是放入队列
 function loadCloudMessages() {
     bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
         const list = document.getElementById('message-list'); 
@@ -351,26 +356,30 @@ function loadCloudMessages() {
             return;
         }
         if (list.innerHTML.includes('Loading...')) list.innerHTML = '';
+        
         if (data.results && data.results.length > 0) {
-            let newMessages = [];
             data.results.forEach(item => {
                 if (!displayedMessageIds.has(item.objectId)) {
                     displayedMessageIds.add(item.objectId);
-                    newMessages.push(item);
+                    // 1. 贴到墙上
+                    addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId, true);
+                    // 2. 加入弹幕等待队列（不要直接发射！）
+                    danmakuQueue.push(item.content);
                 }
             });
-            if (newMessages.length > 0) {
-                newMessages.forEach(item => {
-                    addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId, true);
-                    shootDanmaku(item.content);
-                });
-            }
         }
     });
 }
 setInterval(loadCloudMessages, 3000);
 
-function saveToCloud(text) { bmobRequest('/classes/Danmaku', 'POST', { content: text }).then(() => loadCloudMessages()); } 
+function saveToCloud(text) { 
+    bmobRequest('/classes/Danmaku', 'POST', { content: text }).then(res => {
+        // 自己发的消息，已经立刻显示了，所以标记ID，防止等下拉取时重复
+        displayedMessageIds.add(res.objectId);
+        addCardToWall(text, new Date().toLocaleDateString(), res.objectId, true);
+    });
+} 
+
 window.deleteMessage = function(objectId, element) {
     if(!confirm("确定删除吗？")) return;
     bmobRequest(`/classes/Danmaku/${objectId}`, 'DELETE').then(res => { 
@@ -389,26 +398,180 @@ function addCardToWall(text, dateStr, objectId, isPrepend = false) {
 }
 
 const dmContainer = document.getElementById('danmaku-container'), dmInput = document.getElementById('dm-input'), dmBtn = document.getElementById('dm-btn');
+
 function shootDanmaku(text, isSelf=false) {
     const dm = document.createElement('div'); dm.innerText = text; dm.className = 'danmaku-item';
-    dm.style.top = (Math.floor(Math.random() * 60) + 5) + '%'; dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
+    
+    // ✅ 轨道逻辑：15条轨道，循环分配
+    const maxLanes = 15; 
+    const laneHeight = 5; 
+    const lane = danmakuLaneIndex % maxLanes; 
+    
+    dm.style.top = (5 + lane * laneHeight) + '%'; 
+    danmakuLaneIndex++; 
+
+    dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
     if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
-    dm.style.animation = `dmLeft ${Math.random() * 7 + 8}s linear forwards`; dmContainer.appendChild(dm); setTimeout(() => dm.remove(), 15000);
+    
+    // ✅ 速度慢：20-30秒飘过屏幕
+    const duration = Math.random() * 10 + 20; 
+    dm.style.animation = `dmLeft ${duration}s linear forwards`; 
+    
+    dmContainer.appendChild(dm); 
+    setTimeout(() => dm.remove(), duration * 1000 + 1000);
 }
 
+// ✅ 调度器：每隔 2.5 秒发射一条，不拥堵
+function startRandomAtmosphere() {
+    // 这里的函数体留空，因为逻辑都移到下面这个 scheduler 里了
+}
+
+function startDanmakuScheduler() {
+    const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
+    
+    setInterval(() => {
+        // 优先发队列里的（用户发的）
+        if (danmakuQueue.length > 0) {
+            const text = danmakuQueue.shift();
+            shootDanmaku(text, false);
+        } else {
+            // 队列空了，随机发一条气氛弹幕（30%概率，避免太吵）
+            if(Math.random() < 0.3) {
+                shootDanmaku(presets[Math.floor(Math.random() * presets.length)], false);
+            }
+        }
+    }, 2500); // 2.5秒发一条，匀速
+}
+
+// 点击发送
+if(dmBtn) {
+    dmBtn.onclick = () => { 
+        const t = dmInput.value.trim(); 
+        if(t) { 
+            shootDanmaku(t, true); // 自己的立马发，不等排队
+            saveToCloud(t);      
+            dmInput.value = ''; 
+        } 
+    };
+}
+if(dmInput) dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
+
+// ✅ 计时器逻辑
 function updateTimer() {
     const diff = new Date() - new Date("2023-08-21T00:00:00");
     document.getElementById("love-timer").innerHTML = `我们已经在一起 ❤️ ${Math.floor(diff / (86400000))}天 ${Math.floor((diff / 3600000) % 24)}小时 ${Math.floor((diff / 60000) % 60)}分 ${Math.floor((diff / 1000) % 60)}秒`;
 }
 setInterval(updateTimer, 1000); updateTimer();
-const btn = document.getElementById('music-btn'), audio = document.getElementById('bg-audio'); let isPlaying = false;
-btn.onclick = () => { if (isPlaying) { audio.pause(); btn.classList.remove('music-playing'); } else { audio.play(); btn.classList.add('music-playing'); } isPlaying = !isPlaying; };
-function startRandomAtmosphere() {
-    const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
-    setInterval(() => { shootDanmaku(presets[Math.floor(Math.random() * presets.length)], false); }, 4000);
+
+// ============================================
+// ✅ 音乐播放逻辑
+// ============================================
+
+const songList = [
+    { title: "不是因为寂寞才想你", url: "music/1.mp3" }, 
+    { title: "纸短情长", url: "music/2.mp3" }
+];
+let currentSongIndex = 0;
+let isMusicPlaying = false;
+const audio = document.getElementById('bg-audio');
+const musicBtn = document.getElementById('music-btn');
+const playlistContainer = document.getElementById('music-playlist');
+
+function initMusicPlayer() {
+    renderPlaylist();
+    currentSongIndex = Math.floor(Math.random() * songList.length);
+    loadSong(currentSongIndex, false); 
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            updateMusicUI(true);
+        }).catch(error => {
+            console.log("等待交互...");
+            document.body.addEventListener('click', function tryPlay() {
+                audio.play();
+                updateMusicUI(true);
+                document.body.removeEventListener('click', tryPlay);
+            }, { once: true });
+        });
+    }
+
+    audio.addEventListener('ended', () => {
+        playNextSong();
+    });
+
+    if(musicBtn) {
+        musicBtn.onclick = (e) => {
+            e.stopPropagation(); 
+            if (playlistContainer.classList.contains('show') || playlistContainer.style.display === 'flex') {
+                playlistContainer.classList.remove('show');
+                playlistContainer.style.display = 'none'; 
+            } else {
+                playlistContainer.style.display = 'flex'; 
+                setTimeout(() => playlistContainer.classList.add('show'), 10);
+            }
+        };
+    }
 }
-dmBtn.onclick = () => { const t = dmInput.value.trim(); if(t) { shootDanmaku(t, true); addCardToWall(t, new Date().toLocaleDateString(), null); saveToCloud(t); dmInput.value = ''; } };
-dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
+
+function renderPlaylist() {
+    const ul = document.getElementById('playlist-ul');
+    if(!ul) return;
+    ul.innerHTML = '';
+    songList.forEach((song, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="playing-icon">🎵</span> ${song.title}`;
+        li.onclick = (e) => {
+            e.stopPropagation();
+            loadSong(index, true); 
+        };
+        ul.appendChild(li);
+    });
+}
+
+function loadSong(index, autoPlay) {
+    currentSongIndex = index;
+    audio.src = songList[index].url;
+    
+    const items = document.querySelectorAll('#playlist-ul li');
+    items.forEach((item, i) => {
+        if(i === index) item.classList.add('active');
+        else item.classList.remove('active');
+    });
+
+    if (autoPlay) {
+        audio.play().catch(e => console.log("等待交互"));
+        updateMusicUI(true);
+    }
+}
+
+window.togglePlayPause = function() {
+    if (audio.paused) {
+        audio.play();
+        updateMusicUI(true);
+    } else {
+        audio.pause();
+        updateMusicUI(false);
+    }
+}
+
+function updateMusicUI(playing) {
+    isMusicPlaying = playing;
+    const miniBtn = document.getElementById('mini-control-btn');
+    if (playing) {
+        musicBtn.classList.add('music-playing');
+        if(miniBtn) miniBtn.innerText = "暂停播放";
+    } else {
+        musicBtn.classList.remove('music-playing');
+        if(miniBtn) miniBtn.innerText = "继续播放";
+    }
+}
+
+function playNextSong() {
+    currentSongIndex = (currentSongIndex + 1) % songList.length;
+    loadSong(currentSongIndex, true);
+}
+
 function createStar() {
     const star = document.createElement('div'); star.className = 'star-style';
     star.style.left = Math.random() * 100 + 'vw'; star.style.animation = `starFall ${Math.random() * 3 + 4}s linear forwards`;
