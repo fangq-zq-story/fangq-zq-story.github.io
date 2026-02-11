@@ -114,18 +114,19 @@ input, button, textarea, select {
     width: 100%; 
     height: auto; 
     min-height: 150px; 
-    object-fit: cover; /* 铺满 */
+    object-fit: cover; 
     display: block; 
     border: 1px solid #eee; 
     cursor: zoom-in; 
 }
 
-/* ✅ 关键：禁止直接点击视频本身，让点击事件穿透到外面的 <a> 标签（Fancybox） */
+/* ✅ 关键修改：给视频加黑色背景，防止封面加载失败变白板 */
 .gallery-item video {
-    pointer-events: none; 
+    pointer-events: none; /* 小图禁止操作，点击触发弹窗 */
+    background-color: #000; /* 黑色底色 */
 }
 
-/* ✅ 恢复视频播放图标覆盖层（让界面更好看） */
+/* ✅ 视频播放图标 */
 .video-badge {
     position: absolute;
     top: 50%; left: 50%;
@@ -261,7 +262,8 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 #photo-comment-sidebar {
     position: fixed; top: 0; right: 0; width: 320px; height: 100%;
     background: rgba(255, 255, 255, 0.95);
-    z-index: 999999; 
+    /* ✅ 关键修改：Z-index 调高，确保覆盖在视频之上 */
+    z-index: 1000000; 
     box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex; flex-direction: column;
@@ -300,8 +302,17 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 }
 #comment-toggle-btn:active { transform: scale(0.9); }
 
+/* ✅ 移动端专属优化 */
 @media (max-width: 768px) {
-    #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
+    /* 侧边栏高度降低，只占 40%，防止完全挡住视频 */
+    #photo-comment-sidebar { 
+        width: 100%; 
+        height: 40%; /* 关键：只占40% */
+        top: auto; 
+        bottom: 0; 
+        transform: translateY(100%); 
+        border-radius: 15px 15px 0 0; 
+    }
     #photo-comment-sidebar.show { transform: translateY(0); }
     #comment-toggle-btn { bottom: 80px; right: 15px; }
 }

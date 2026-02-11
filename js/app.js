@@ -31,14 +31,12 @@ function removeLoader() {
 window.addEventListener('load', removeLoader);
 setTimeout(removeLoader, 5000); 
 
-// ✅✅✅ 核心修复：阻止事件冒泡 + 监听回车发送
+// 侧边栏评论功能：防止冒泡 + 回车发送
 const sidebarInput = document.getElementById('sidebar-input');
 if(sidebarInput) {
     sidebarInput.addEventListener('keydown', (e) => { 
-        e.stopPropagation(); // 防止按键触发 Fancybox 的快捷键
-        if (e.key === 'Enter') {
-            postSidebarComment(); // 回车直接发送
-        }
+        e.stopPropagation(); 
+        if (e.key === 'Enter') postSidebarComment(); 
     });
 }
 
@@ -165,13 +163,11 @@ function loadCloudPhotos() {
         if(data.results && data.results.length > 0) {
             data.results.forEach(photo => { renderGalleryItem(photo, false); });
             
-            // ✅✅✅ 核心修复：添加 autoFocus: false 等配置，允许在查看大图时输入评论
             Fancybox.bind("[data-fancybox]", { 
                 Carousel: { infinite: true }, 
                 Thumbs: { type: "classic" }, 
                 Toolbar: { display: { right: ["close"] } },
                 Html: { video: { autoplay: true } },
-                // 👇 解除焦点锁定，让你能点输入框
                 autoFocus: false,
                 trapFocus: false,
                 placeFocusBack: false,
