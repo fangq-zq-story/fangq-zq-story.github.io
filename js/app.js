@@ -204,7 +204,7 @@ function showPhotoSidebar(pid) {
     const sidebar = document.getElementById('photo-comment-sidebar');
     const toggleBtn = document.getElementById('comment-toggle-btn');
     
-    // ✅ 关键：通知 CSS 进入分屏模式
+    // ✅ 关键：打开评论时，给 body 加标记，通知 CSS 缩小视频
     document.body.classList.add('mobile-split-view');
     
     sidebar.classList.add('show');
@@ -223,7 +223,7 @@ function closeSidebarManually() {
     document.getElementById('photo-comment-sidebar').classList.remove('show');
     document.getElementById('comment-toggle-btn').style.display = 'flex';
     
-    // ✅ 关键：退出分屏模式
+    // ✅ 关闭评论时，恢复视频大小
     document.body.classList.remove('mobile-split-view');
 }
 
@@ -231,7 +231,7 @@ function openSidebarManually() {
     document.getElementById('photo-comment-sidebar').classList.add('show');
     document.getElementById('comment-toggle-btn').style.display = 'none';
     
-    // ✅ 关键：进入分屏模式
+    // ✅ 打开评论时，缩小视频
     document.body.classList.add('mobile-split-view');
 }
 
@@ -239,7 +239,7 @@ function closeSidebarCompletely() {
     document.getElementById('photo-comment-sidebar').classList.remove('show');
     document.getElementById('comment-toggle-btn').style.display = 'none';
     
-    // ✅ 关键：退出分屏模式
+    // ✅ 关闭时，恢复视频大小
     document.body.classList.remove('mobile-split-view');
     
     currentPhotoId = null;
@@ -609,4 +609,3 @@ function createStar() {
 }
 const styleSheet = document.createElement("style"); styleSheet.innerText = `@keyframes starFall { 0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; } } @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }`;
 document.head.appendChild(styleSheet); setInterval(createStar, 700);
-}
