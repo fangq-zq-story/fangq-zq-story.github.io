@@ -31,12 +31,20 @@ function removeLoader() {
 window.addEventListener('load', removeLoader);
 setTimeout(removeLoader, 5000); 
 
-// 侧边栏评论功能：防止冒泡 + 回车发送
+// ✅ 回车发送功能（增强版）
 const sidebarInput = document.getElementById('sidebar-input');
 if(sidebarInput) {
     sidebarInput.addEventListener('keydown', (e) => { 
+        // 关键：阻止事件冒泡到 Fancybox，防止冲突
         e.stopPropagation(); 
-        if (e.key === 'Enter') postSidebarComment(); 
+        if (e.key === 'Enter') {
+            postSidebarComment(); 
+        }
+    });
+    // 增加点击聚焦，防止手机键盘弹不出来
+    sidebarInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebarInput.focus();
     });
 }
 
@@ -87,10 +95,11 @@ function renderGalleryItem(photo, isPrepend = false) {
         let thumbUrl = safeUrl;
         if(safeUrl.indexOf('#t=') === -1) thumbUrl += '#t=1.0';
 
+        // ✅ 增加 playsinline，防止 iOS 强制全屏
         div.innerHTML = `${controls}
             <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
                 <div class="video-badge"></div>
-                <video src="${thumbUrl}" muted preload="metadata" playsinline></video>
+                <video src="${thumbUrl}" muted preload="metadata" playsinline webkit-playsinline></video>
             </a>
             <div class="photo-caption-text">${photo.caption}</div>`;
     } else {
@@ -163,11 +172,13 @@ function loadCloudPhotos() {
         if(data.results && data.results.length > 0) {
             data.results.forEach(photo => { renderGalleryItem(photo, false); });
             
+            // ✅✅✅ Fancybox 移动端优化配置
             Fancybox.bind("[data-fancybox]", { 
                 Carousel: { infinite: true }, 
                 Thumbs: { type: "classic" }, 
                 Toolbar: { display: { right: ["close"] } },
                 Html: { video: { autoplay: true } },
+                // 👇 解除焦点锁定，允许操作侧边栏
                 autoFocus: false,
                 trapFocus: false,
                 placeFocusBack: false,

@@ -120,13 +120,15 @@ input, button, textarea, select {
     cursor: zoom-in; 
 }
 
-/* ✅ 关键修改：给视频加黑色背景，防止封面加载失败变白板 */
+/* ✅ 关键修改1：视频背景色！
+   如果手机不加载封面，这里会显示一个漂亮的粉色渐变，而不是黑洞 */
 .gallery-item video {
-    pointer-events: none; /* 小图禁止操作，点击触发弹窗 */
-    background-color: #000; /* 黑色底色 */
+    pointer-events: none; /* 小图禁止操作 */
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* 默认浅灰背景 */
+    /* 或者用你的主题色： background: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%); */
 }
 
-/* ✅ 视频播放图标 */
+/* ✅ 视频播放图标覆盖层 */
 .video-badge {
     position: absolute;
     top: 50%; left: 50%;
@@ -259,11 +261,11 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
 @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
 
+/* ✅ 关键修改2：侧边栏 Z-index 调到最大值，确保覆盖一切 */
 #photo-comment-sidebar {
     position: fixed; top: 0; right: 0; width: 320px; height: 100%;
     background: rgba(255, 255, 255, 0.95);
-    /* ✅ 关键修改：Z-index 调高，确保覆盖在视频之上 */
-    z-index: 1000000; 
+    z-index: 2147483647; /* 保证全宇宙最顶层，盖住原生视频控件 */
     box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex; flex-direction: column;
@@ -282,7 +284,7 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 .sidebar-del-btn { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ff7675; color: white; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; display: none; }
 .sidebar-comment-item:hover .sidebar-del-btn.show-admin { display: block; }
 
-.sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; }
+.sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; position: relative; z-index: 2147483647; }
 #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 1rem; }
 #sidebar-input:focus { border-color: #ff7675; }
 #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
@@ -302,17 +304,8 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 }
 #comment-toggle-btn:active { transform: scale(0.9); }
 
-/* ✅ 移动端专属优化 */
 @media (max-width: 768px) {
-    /* 侧边栏高度降低，只占 40%，防止完全挡住视频 */
-    #photo-comment-sidebar { 
-        width: 100%; 
-        height: 40%; /* 关键：只占40% */
-        top: auto; 
-        bottom: 0; 
-        transform: translateY(100%); 
-        border-radius: 15px 15px 0 0; 
-    }
+    #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
     #photo-comment-sidebar.show { transform: translateY(0); }
     #comment-toggle-btn { bottom: 80px; right: 15px; }
 }
