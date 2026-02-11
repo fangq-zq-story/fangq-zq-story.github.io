@@ -120,7 +120,7 @@ input, button, textarea, select {
     cursor: zoom-in; 
 }
 
-/* ✅ 关键修改1：视频背景色！防止手机白板 */
+/* ✅ 视频背景色：防止手机白板 */
 .gallery-item video {
     pointer-events: none; 
     background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); 
@@ -263,11 +263,9 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 #photo-comment-sidebar {
     position: fixed; top: 0; right: 0; width: 320px; height: 100%;
     background: rgba(255, 255, 255, 0.95);
-    /* ⚠️ 强制全宇宙最高层级，压制视频 */
     z-index: 2147483647 !important; 
     box-shadow: -5px 0 15px rgba(0,0,0,0.1);
     
-    /* ⚠️ 开启GPU硬件加速（骗过手机浏览器，让它认为这也是个视频层） */
     -webkit-transform: translate3d(100%, 0, 0); 
     transform: translate3d(100%, 0, 0); 
     
@@ -284,15 +282,14 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
     padding: 15px; 
     border-bottom: 1px solid #eee; 
     display: flex; justify-content: space-between; align-items: center; 
-    background: #fff; /* 必须给背景色，防止透出视频 */
-    z-index: 2; /* 确保头部在列表之上 */
+    background: #fff; 
+    z-index: 2; 
 }
 .sidebar-header span { font-size: 1.3rem; color: #ff7675; }
 
-/* ✅ 放大关闭按钮，防止点不到 */
 .close-sidebar { 
     cursor: pointer; font-size: 2rem; color: #999; line-height: 1; 
-    padding: 0 10px; /* 增加点击区域 */
+    padding: 0 10px; 
 }
 
 #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
@@ -305,7 +302,7 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 .sidebar-input-area { 
     padding: 15px; border-top: 1px solid #eee; background: #fff; 
     display: flex; gap: 10px; 
-    padding-bottom: max(15px, env(safe-area-inset-bottom)); /* 适配 iPhone 底部黑条 */
+    padding-bottom: max(15px, env(safe-area-inset-bottom)); 
 }
 #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 1rem; }
 #sidebar-input:focus { border-color: #ff7675; }
@@ -326,17 +323,14 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 }
 #comment-toggle-btn:active { transform: scale(0.9); }
 
-/* ✅ 移动端专属适配 */
+/* ✅ 移动端专属适配：分屏逻辑 */
 @media (max-width: 768px) {
     #photo-comment-sidebar { 
         width: 100%; 
-        height: 50%; /* 占一半高度 */
+        height: 50%; 
         top: auto; bottom: 0; 
-        
-        /* 移动端动画方向 */
         -webkit-transform: translate3d(0, 100%, 0); 
         transform: translate3d(0, 100%, 0); 
-        
         border-radius: 15px 15px 0 0; 
     }
     #photo-comment-sidebar.show { 
@@ -344,4 +338,10 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
         transform: translate3d(0, 0, 0); 
     }
     #comment-toggle-btn { bottom: 80px; right: 15px; }
+
+    /* ✅ 当评论区打开时（body上有这个类），强制视频弹窗只显示在上半部分 */
+    body.mobile-split-view .fancybox__container {
+        bottom: 50% !important; /* 留出下半部分给评论 */
+        height: 50% !important; /* 视频窗口高度减半 */
+    }
 }
