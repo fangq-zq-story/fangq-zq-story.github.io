@@ -12,11 +12,8 @@ let displayedMessageIds = new Set();
 let currentPhotoId = null;
 let photoCommentInterval = null;
 let danmakuLaneIndex = 0;
-
-// ✅ 新增：弹幕排队队列
 let danmakuQueue = []; 
 
-// ✅ 定义一个移除加载动画的函数
 function removeLoader() {
     const loader = document.getElementById('page-loader');
     if (loader && loader.style.display !== 'none') {
@@ -26,7 +23,6 @@ function removeLoader() {
             AOS.init({ once: true, offset: 60 });
             checkLocalLogin(); loadCloudMessages(); loadCloudPhotos(); initTypewriter();
             initMusicPlayer();
-            // ✅ 启动弹幕调度器（交通管制中心）
             startDanmakuScheduler(); 
         }, 600);
     }
@@ -35,7 +31,17 @@ function removeLoader() {
 window.addEventListener('load', removeLoader);
 setTimeout(removeLoader, 5000); 
 
-document.getElementById('sidebar-input').addEventListener('keydown', (e) => { e.stopPropagation(); });
+// ✅✅✅ 核心修复：阻止事件冒泡 + 监听回车发送
+const sidebarInput = document.getElementById('sidebar-input');
+if(sidebarInput) {
+    sidebarInput.addEventListener('keydown', (e) => { 
+        e.stopPropagation(); // 防止按键触发 Fancybox 的快捷键
+        if (e.key === 'Enter') {
+            postSidebarComment(); // 回车直接发送
+        }
+    });
+}
+
 document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => { e.stopPropagation(); });
 document.getElementById('comment-toggle-btn').addEventListener('click', (e) => { e.stopPropagation(); });
 
@@ -59,106 +65,130 @@ function toggleModal(id) {
     }
 }
 
-function uploadPhoto() {
+function renderGalleryItem(photo, isPrepend = false) {
+    if(!photo.url) return;
+    let safeUrl = photo.url;
+    if(safeUrl.indexOf('http') !== 0 && safeUrl.indexOf('/') !== 0) safeUrl = '/' + safeUrl;
+
+    const gallery = document.getElementById('gallery-grid');
+    const div = document.createElement('div'); 
+    div.className = 'gallery-item'; 
+    div.setAttribute('data-id', photo.objectId);
+    div.setAttribute('data-order', photo.order || 0); 
+    
+    let controls = '';
+    if(isUserAdmin) {
+        controls = `<div class="photo-controls" onclick="event.stopPropagation()">
+            <div class="control-btn btn-edit" onclick="openEditPhoto('${photo.objectId}', '${photo.caption}')">✎</div>
+            <div class="control-btn btn-delete" onclick="deletePhoto('${photo.objectId}', this)">🗑️</div></div>`;
+    }
+
+    const isVideo = safeUrl.match(/\.(mp4|mov|webm|ogg)$/i);
+
+    if (isVideo) {
+        let thumbUrl = safeUrl;
+        if(safeUrl.indexOf('#t=') === -1) thumbUrl += '#t=1.0';
+
+        div.innerHTML = `${controls}
+            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
+                <div class="video-badge"></div>
+                <video src="${thumbUrl}" muted preload="metadata" playsinline></video>
+            </a>
+            <div class="photo-caption-text">${photo.caption}</div>`;
+    } else {
+        div.innerHTML = `${controls}
+            <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
+                <img src="${safeUrl}" alt="${photo.caption}" loading="lazy">
+            </a>
+            <div class="photo-caption-text">${photo.caption}</div>`;
+    }
+
+    if (isPrepend && gallery.firstChild) {
+        gallery.insertBefore(div, gallery.firstChild);
+    } else {
+        gallery.appendChild(div);
+    }
+}
+
+function uploadMedia() {
     const fileInput = document.getElementById('photo-file');
+    const urlInput = document.getElementById('custom-url');
     const captionInput = document.getElementById('photo-caption');
+    
     const file = fileInput.files[0];
+    const urlVal = urlInput.value.trim();
     const caption = captionInput.value.trim() || "美好的瞬间";
-
-    if(!file) { alert("请选择照片"); return; }
-    
     const btn = document.getElementById('upload-btn-action'); 
-    btn.innerText = "⏳ 正在上传到图床..."; 
-    btn.disabled = true;
 
-    const formData = new FormData();
-    formData.append("image", file);
-    
-    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(imgData => {
-        if(!imgData.success) {
-            throw new Error("图床上传失败: " + (imgData.error ? imgData.error.message : "未知错误"));
+    if (urlVal) {
+        btn.disabled = true; btn.innerText = "💾 正在保存链接..."; 
+        bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: urlVal, caption: caption, order: Date.now() })
+        .then((res) => { 
+            alert("✨ 链接添加成功！"); 
+            toggleModal('upload-modal'); 
+            renderGalleryItem({ objectId: res.objectId, url: urlVal, caption: caption, order: Date.now() }, true); 
+            urlInput.value = ''; captionInput.value = ''; btn.disabled = false; btn.innerText = "☁️ 保存到云端";
+        })
+        .catch(e => { console.error(e); alert("保存失败: " + e.message); btn.disabled = false; btn.innerText = "☁️ 保存到云端"; });
+        return;
+    }
+
+    if (file) {
+        if (file.type.startsWith('video/')) {
+            alert("⚠️ 视频文件请勿直接上传。\n\n请将视频放在项目 static/videos 文件夹里，然后粘贴链接（如 /videos/1.mp4）。");
+            return;
         }
-        const publicUrl = imgData.data.url;
-        const newOrder = Date.now();
-        btn.innerText = "💾 正在保存..."; 
-        return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: publicUrl, caption: caption, order: newOrder });
-    })
-    .then(() => { 
-        alert("✨ 上传成功！"); 
-        location.reload(); 
-    })
-    .catch(e => { 
-        console.error(e); 
-        alert("上传失败: " + e.message);
-        btn.innerText = "☁️ 上传到云相册"; 
-        btn.disabled = false; 
-    });
+        btn.disabled = true; btn.innerText = "⏳ 正在上传图片..."; 
+        const formData = new FormData();
+        formData.append("image", file);
+        fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData })
+        .then(res => res.json())
+        .then(imgData => {
+            if(!imgData.success) throw new Error("图床上传失败");
+            btn.innerText = "💾 正在保存..."; 
+            return bmobRequest(`/classes/${PHOTO_TABLE}`, 'POST', { url: imgData.data.url, caption: caption, order: Date.now() });
+        })
+        .then((res) => { 
+            alert("✨ 图片上传成功！"); 
+            toggleModal('upload-modal'); 
+            renderGalleryItem({ objectId: res.objectId, url: imgData.data.url, caption: caption, order: Date.now() }, true);
+            fileInput.value = ''; captionInput.value = ''; btn.disabled = false; btn.innerText = "☁️ 保存到云端";
+        })
+        .catch(e => { console.error(e); alert("上传失败: " + e.message); btn.disabled = false; btn.innerText = "☁️ 保存到云端"; });
+        return;
+    }
+    alert("请选择图片文件，或者粘贴视频链接！");
 }
 
 function loadCloudPhotos() {
     bmobRequest(`/classes/${PHOTO_TABLE}?order=order,-createdAt&limit=500`, 'GET').then(data => {
         if(data.results && data.results.length > 0) {
-            const gallery = document.getElementById('gallery-grid');
-            data.results.forEach(photo => {
-                if(!photo.url) return;
-                let safeUrl = photo.url;
-                if(safeUrl.indexOf('http://') === 0) safeUrl = safeUrl.replace('http://', 'https://');
-
-                const div = document.createElement('div'); 
-                div.className = 'gallery-item'; 
-                div.setAttribute('data-id', photo.objectId);
-                div.setAttribute('data-order', photo.order || 0);
-                
-                let controls = '';
-                if(isUserAdmin) {
-                    controls = `<div class="photo-controls" onclick="event.stopPropagation()">
-                        <div class="control-btn btn-edit" onclick="openEditPhoto('${photo.objectId}', '${photo.caption}')">✎</div>
-                        <div class="control-btn btn-delete" onclick="deletePhoto('${photo.objectId}', this)">🗑️</div></div>`;
-                }
-
-                div.innerHTML = `${controls}
-                    <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
-                        <img src="${safeUrl}" alt="${photo.caption}" loading="lazy">
-                    </a>
-                    <div class="photo-caption-text">${photo.caption}</div>`;
-                gallery.appendChild(div);
-            });
+            data.results.forEach(photo => { renderGalleryItem(photo, false); });
             
+            // ✅✅✅ 核心修复：添加 autoFocus: false 等配置，允许在查看大图时输入评论
             Fancybox.bind("[data-fancybox]", { 
                 Carousel: { infinite: true }, 
                 Thumbs: { type: "classic" }, 
                 Toolbar: { display: { right: ["close"] } },
+                Html: { video: { autoplay: true } },
+                // 👇 解除焦点锁定，让你能点输入框
                 autoFocus: false,
                 trapFocus: false,
                 placeFocusBack: false,
                 on: {
                     "Carousel.ready": (fancybox) => { 
-                        const dmArea = document.getElementById('dm-input-area');
-                        if(dmArea) dmArea.classList.add('hide-input'); 
-                        const slide = fancybox.getSlide();
-                        if(slide && slide.triggerEl) {
-                            const pid = slide.triggerEl.dataset.id;
-                            showPhotoSidebar(pid);
-                        }
+                        const dmArea = document.getElementById('dm-input-area'); if(dmArea) dmArea.classList.add('hide-input'); 
+                        const slide = fancybox.getSlide(); if(slide && slide.triggerEl) showPhotoSidebar(slide.triggerEl.dataset.id);
                     },
                     "Carousel.change": (fancybox) => {
                         const currentSlide = fancybox.getSlide();
                         if(currentSlide && currentSlide.triggerEl) {
                             const pid = currentSlide.triggerEl.dataset.id;
-                            if(pid !== currentPhotoId) {
-                                document.getElementById('sidebar-input').value = '';
-                                updateSidebarContent(pid);
-                            }
+                            if(pid !== currentPhotoId) { document.getElementById('sidebar-input').value = ''; updateSidebarContent(pid); }
                         }
                     },
                     "close": () => { 
-                        const dmArea = document.getElementById('dm-input-area');
-                        if(dmArea) dmArea.classList.remove('hide-input'); 
+                        const dmArea = document.getElementById('dm-input-area'); if(dmArea) dmArea.classList.remove('hide-input'); 
                         closeSidebarCompletely(); 
                     }
                 }
@@ -347,7 +377,6 @@ document.addEventListener('mousemove', function(e) {
     star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
 });
 
-// ✅ 弹幕逻辑：从云端拉取数据，但不直接发射，而是放入队列
 function loadCloudMessages() {
     bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
         const list = document.getElementById('message-list'); 
@@ -361,9 +390,7 @@ function loadCloudMessages() {
             data.results.forEach(item => {
                 if (!displayedMessageIds.has(item.objectId)) {
                     displayedMessageIds.add(item.objectId);
-                    // 1. 贴到墙上
                     addCardToWall(item.content, item.createdAt.split(' ')[0], item.objectId, true);
-                    // 2. 加入弹幕等待队列（不要直接发射！）
                     danmakuQueue.push(item.content);
                 }
             });
@@ -374,7 +401,6 @@ setInterval(loadCloudMessages, 3000);
 
 function saveToCloud(text) { 
     bmobRequest('/classes/Danmaku', 'POST', { content: text }).then(res => {
-        // 自己发的消息，已经立刻显示了，所以标记ID，防止等下拉取时重复
         displayedMessageIds.add(res.objectId);
         addCardToWall(text, new Date().toLocaleDateString(), res.objectId, true);
     });
@@ -401,8 +427,6 @@ const dmContainer = document.getElementById('danmaku-container'), dmInput = docu
 
 function shootDanmaku(text, isSelf=false) {
     const dm = document.createElement('div'); dm.innerText = text; dm.className = 'danmaku-item';
-    
-    // ✅ 轨道逻辑：15条轨道，循环分配
     const maxLanes = 15; 
     const laneHeight = 5; 
     const lane = danmakuLaneIndex % maxLanes; 
@@ -413,7 +437,6 @@ function shootDanmaku(text, isSelf=false) {
     dm.style.fontSize = (Math.random() * 0.5 + 1.2) + 'rem';
     if(isSelf) { dm.style.color = '#ffeaa7'; dm.style.zIndex = 100; dm.style.border = "1px solid rgba(255,255,255,0.5)"; dm.style.borderRadius = "20px"; dm.style.padding = "2px 10px"; }
     
-    // ✅ 速度慢：20-30秒飘过屏幕
     const duration = Math.random() * 10 + 20; 
     dm.style.animation = `dmLeft ${duration}s linear forwards`; 
     
@@ -421,34 +444,30 @@ function shootDanmaku(text, isSelf=false) {
     setTimeout(() => dm.remove(), duration * 1000 + 1000);
 }
 
-// ✅ 调度器：每隔 2.5 秒发射一条，不拥堵
-function startRandomAtmosphere() {
-    // 这里的函数体留空，因为逻辑都移到下面这个 scheduler 里了
-}
-
 function startDanmakuScheduler() {
     const presets = ["永远开心快乐呀！", "今天的风好甜~", "哇，这张照片好美！", "Love You Forever", "要一直幸福下去哦 ❤️", "羡慕这两个人~", "背景音乐好好听", "打卡打卡！", "✨✨✨", "好浪漫呀~"];
     
     setInterval(() => {
-        // 优先发队列里的（用户发的）
         if (danmakuQueue.length > 0) {
             const text = danmakuQueue.shift();
             shootDanmaku(text, false);
         } else {
-            // 队列空了，随机发一条气氛弹幕（30%概率，避免太吵）
             if(Math.random() < 0.3) {
                 shootDanmaku(presets[Math.floor(Math.random() * presets.length)], false);
             }
         }
-    }, 2500); // 2.5秒发一条，匀速
+    }, 2500);
 }
 
-// 点击发送
+function startRandomAtmosphere() {
+    // 留空，逻辑移交 scheduler
+}
+
 if(dmBtn) {
     dmBtn.onclick = () => { 
         const t = dmInput.value.trim(); 
         if(t) { 
-            shootDanmaku(t, true); // 自己的立马发，不等排队
+            shootDanmaku(t, true); 
             saveToCloud(t);      
             dmInput.value = ''; 
         } 
@@ -456,16 +475,11 @@ if(dmBtn) {
 }
 if(dmInput) dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') dmBtn.click(); });
 
-// ✅ 计时器逻辑
 function updateTimer() {
     const diff = new Date() - new Date("2023-08-21T00:00:00");
     document.getElementById("love-timer").innerHTML = `我们已经在一起 ❤️ ${Math.floor(diff / (86400000))}天 ${Math.floor((diff / 3600000) % 24)}小时 ${Math.floor((diff / 60000) % 60)}分 ${Math.floor((diff / 1000) % 60)}秒`;
 }
 setInterval(updateTimer, 1000); updateTimer();
-
-// ============================================
-// ✅ 音乐播放逻辑
-// ============================================
 
 const songList = [
     { title: "不是因为寂寞才想你", url: "music/1.mp3" }, 

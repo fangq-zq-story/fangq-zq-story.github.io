@@ -108,11 +108,42 @@ input, button, textarea, select {
 .gallery-item:nth-child(even) { transform: rotate(2deg); }
 .gallery-item:nth-child(odd) { transform: rotate(-1.5deg); }
 .gallery-item:hover { transform: rotate(0deg) scale(1.05) translateY(-10px) !important; z-index: 20; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
-.gallery-item img { 
-    width: 100%; height: auto; display: block; 
+
+/* ✅ 视频/图片通用样式 */
+.gallery-item img, .gallery-item video { 
+    width: 100%; 
+    height: auto; 
+    min-height: 150px; 
+    object-fit: cover; /* 铺满 */
+    display: block; 
     border: 1px solid #eee; 
     cursor: zoom-in; 
 }
+
+/* ✅ 关键：禁止直接点击视频本身，让点击事件穿透到外面的 <a> 标签（Fancybox） */
+.gallery-item video {
+    pointer-events: none; 
+}
+
+/* ✅ 恢复视频播放图标覆盖层（让界面更好看） */
+.video-badge {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px; height: 50px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; 
+    z-index: 5;
+}
+.video-badge::after {
+    content: "▶";
+    color: white;
+    font-size: 20px;
+    margin-left: 3px;
+}
+
 .photo-caption-text {
     font-size: 1.2rem; color: #555; 
     text-align: center; margin-top: 10px; line-height: 1.4; text-decoration: none; width: 100%;
@@ -168,45 +199,26 @@ h1 {
 
 footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: relative; z-index: 10; opacity: 0.8; font-size: 1.1rem; }
 
-/* ✅ 右下角悬浮按钮 */
-#music-btn { 
-    position: fixed; 
-    bottom: 40px; 
-    right: 40px; 
-    z-index: 20000; 
-    cursor: pointer; 
-    width: 50px; height: 50px; 
-    background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); 
-    border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; 
-    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); 
-    font-size: 1.5rem; 
-    color: white; 
-    transition: all 0.3s ease; 
-}
+#music-btn { position: fixed; bottom: 40px; right: 40px; z-index: 20000; cursor: pointer; width: 50px; height: 50px; background: linear-gradient(135deg, #ff9a9e 0%, #ff6b81 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4); font-size: 1.5rem; color: white; transition: all 0.3s ease; }
 .music-playing { animation: recordSpin 3s linear infinite; box-shadow: 0 8px 25px rgba(255, 107, 129, 0.6) !important; }
 @keyframes recordSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* ✅ 音乐列表：强制样式，解决长条问题 */
 .music-playlist {
     position: fixed;
-    bottom: 110px; 
-    right: 40px;   
-    width: 240px !important; 
+    bottom: 110px; right: 40px;
+    width: 240px !important;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 12px;
     box-shadow: 0 5px 25px rgba(0,0,0,0.15);
     z-index: 20001; 
     padding: 15px;
-    display: none; /* 默认隐藏 */
+    display: none; 
     flex-direction: column;
     animation: fadeInUp 0.3s ease;
     border: 1px solid rgba(255,255,255,0.8);
 }
-/* 只有当 JS 给它加上 show 类时才显示 */
 .music-playlist.show { display: flex !important; }
-
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 .playlist-header { font-size: 1.1rem; color: #ff7675; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }

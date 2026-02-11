@@ -38,7 +38,7 @@
     </div>
 
     <div id="login-trigger" class="float-btn" onclick="toggleModal('login-modal')">🔒 管理员</div>
-    <div id="upload-trigger" class="float-btn" onclick="toggleModal('upload-modal')">📷 上传照片</div>
+    <div id="upload-trigger" class="float-btn" onclick="toggleModal('upload-modal')">📷 上传</div>
 
     <div id="login-modal" class="modal-overlay">
         <div class="modal-box">
@@ -54,9 +54,16 @@
         <div class="modal-box">
             <div class="close-modal" onclick="toggleModal('upload-modal')">×</div>
             <h3>添加美好瞬间</h3>
+            
             <input type="file" id="photo-file" class="modal-input" accept="image/*">
+            <p style="font-size:0.8rem; color:#999; margin:-10px 0 10px 0;">(图片可直接上传，视频请用下方链接)</p>
+            
+            <p style="font-size:0.9rem; color:#ff7675; margin:5px 0;">——— 或者 ———</p>
+            
+            <input type="text" id="custom-url" class="modal-input" placeholder="粘贴视频或图片链接 (如 /videos/1.mp4)">
+            
             <input type="text" id="photo-caption" class="modal-input" placeholder="写一句好看的批注吧">
-            <button class="modal-btn" id="upload-btn-action" onclick="uploadPhoto()">☁️ 上传到云相册</button>
+            <button class="modal-btn" id="upload-btn-action" onclick="uploadMedia()">☁️ 保存到云端</button>
         </div>
     </div>
 
@@ -98,8 +105,7 @@
 
     <div id="music-playlist" class="music-playlist">
         <div class="playlist-header">🎵 播放列表</div>
-        <ul id="playlist-ul">
-            </ul>
+        <ul id="playlist-ul"></ul>
         <div class="playlist-control">
             <button onclick="togglePlayPause()" id="mini-control-btn">暂停/播放</button>
         </div>
