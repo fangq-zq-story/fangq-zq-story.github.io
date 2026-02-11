@@ -120,15 +120,13 @@ input, button, textarea, select {
     cursor: zoom-in; 
 }
 
-/* ✅ 关键修改1：视频背景色！
-   如果手机不加载封面，这里会显示一个漂亮的粉色渐变，而不是黑洞 */
+/* ✅ 视频背景色：防止手机白板 */
 .gallery-item video {
-    pointer-events: none; /* 小图禁止操作 */
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* 默认浅灰背景 */
-    /* 或者用你的主题色： background: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%); */
+    pointer-events: none; 
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); 
 }
 
-/* ✅ 视频播放图标覆盖层 */
+/* ✅ 视频播放图标 */
 .video-badge {
     position: absolute;
     top: 50%; left: 50%;
@@ -261,21 +259,41 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
 @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
 
-/* ✅ 关键修改2：侧边栏 Z-index 调到最大值，确保覆盖一切 */
+/* ✅ 核心修改区：评论侧边栏 */
 #photo-comment-sidebar {
     position: fixed; top: 0; right: 0; width: 320px; height: 100%;
     background: rgba(255, 255, 255, 0.95);
-    z-index: 2147483647; /* 保证全宇宙最顶层，盖住原生视频控件 */
+    /* ⚠️ 强制全宇宙最高层级，压制视频 */
+    z-index: 2147483647 !important; 
     box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* ⚠️ 开启GPU硬件加速（骗过手机浏览器，让它认为这也是个视频层） */
+    -webkit-transform: translate3d(100%, 0, 0); 
+    transform: translate3d(100%, 0, 0); 
+    
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex; flex-direction: column;
     backdrop-filter: blur(10px);
 }
-#photo-comment-sidebar.show { transform: translateX(0); }
+#photo-comment-sidebar.show { 
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0); 
+}
 
-.sidebar-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+.sidebar-header { 
+    padding: 15px; 
+    border-bottom: 1px solid #eee; 
+    display: flex; justify-content: space-between; align-items: center; 
+    background: #fff; /* 必须给背景色，防止透出视频 */
+    z-index: 2; /* 确保头部在列表之上 */
+}
 .sidebar-header span { font-size: 1.3rem; color: #ff7675; }
-.close-sidebar { cursor: pointer; font-size: 1.5rem; color: #999; line-height: 1; }
+
+/* ✅ 放大关闭按钮，防止点不到 */
+.close-sidebar { 
+    cursor: pointer; font-size: 2rem; color: #999; line-height: 1; 
+    padding: 0 10px; /* 增加点击区域 */
+}
 
 #sidebar-comment-list { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
 .sidebar-comment-item { margin-bottom: 15px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; animation: popIn 0.3s ease; }
@@ -284,7 +302,11 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 .sidebar-del-btn { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; background: #ff7675; color: white; border-radius: 50%; font-size: 12px; text-align: center; line-height: 18px; cursor: pointer; display: none; }
 .sidebar-comment-item:hover .sidebar-del-btn.show-admin { display: block; }
 
-.sidebar-input-area { padding: 15px; border-top: 1px solid #eee; background: #fff; display: flex; gap: 10px; position: relative; z-index: 2147483647; }
+.sidebar-input-area { 
+    padding: 15px; border-top: 1px solid #eee; background: #fff; 
+    display: flex; gap: 10px; 
+    padding-bottom: max(15px, env(safe-area-inset-bottom)); /* 适配 iPhone 底部黑条 */
+}
 #sidebar-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; font-size: 1rem; }
 #sidebar-input:focus { border-color: #ff7675; }
 #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
@@ -304,8 +326,22 @@ footer { text-align: center; color: #fff; padding: 20px 0 120px 0; position: rel
 }
 #comment-toggle-btn:active { transform: scale(0.9); }
 
+/* ✅ 移动端专属适配 */
 @media (max-width: 768px) {
-    #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
-    #photo-comment-sidebar.show { transform: translateY(0); }
+    #photo-comment-sidebar { 
+        width: 100%; 
+        height: 50%; /* 占一半高度 */
+        top: auto; bottom: 0; 
+        
+        /* 移动端动画方向 */
+        -webkit-transform: translate3d(0, 100%, 0); 
+        transform: translate3d(0, 100%, 0); 
+        
+        border-radius: 15px 15px 0 0; 
+    }
+    #photo-comment-sidebar.show { 
+        -webkit-transform: translate3d(0, 0, 0); 
+        transform: translate3d(0, 0, 0); 
+    }
     #comment-toggle-btn { bottom: 80px; right: 15px; }
 }
