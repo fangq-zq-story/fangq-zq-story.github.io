@@ -120,7 +120,7 @@ input, button, textarea, select {
     cursor: zoom-in; 
 }
 
-/* ✅ 视频背景色：防止手机白板 */
+/* ✅ 关键修改1：视频背景色！防止手机白板 */
 .gallery-item video {
     pointer-events: none; 
     background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); 
