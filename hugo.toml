@@ -1,4 +1,4 @@
-baseURL = "https://fangq-zq-story.vercel.app/"
+baseURL = "https://fangq-zq-story.github.io/"
 languageCode = 'zh-cn'
 title = '我们的纪念馆'
 theme = 'hugo-easy-gallery'

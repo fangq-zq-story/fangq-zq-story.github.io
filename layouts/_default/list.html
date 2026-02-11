@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Title }}</title>
+    <title>我们的时光印记</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
@@ -100,7 +101,7 @@
         }
         .message-card:hover .delete-msg-btn.show-admin { display: block; }
 
-        /* 瀑布流布局 */
+         
         .gallery-grid { 
             column-count: 4; 
             column-gap: 25px; 
@@ -196,7 +197,7 @@
         .magic-particle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998; animation: fadeOut 0.8s forwards; box-shadow: 0 0 5px rgba(255,255,255,0.8); }
         @keyframes fadeOut { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2) translateY(20px); } }
 
-        /* 单图评论区样式 */
+         
         #photo-comment-sidebar {
             position: fixed; top: 0; right: 0; width: 320px; height: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -224,17 +225,17 @@
         #sidebar-input:focus { border-color: #ff7675; }
         #sidebar-btn { background: #ff7675; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-family: 'Ma Shan Zheng', cursive; }
         
-        /* ✅ 新增：悬浮切换按钮 (默认隐藏，JS控制显示) */
+         
         #comment-toggle-btn {
             position: fixed; bottom: 100px; right: 20px;
             width: 45px; height: 45px;
             background: #ff7675; color: white;
             border-radius: 50%;
-            display: none; /* 默认隐藏 */
+            display: none;  
             align-items: center; justify-content: center;
             font-size: 20px;
             box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
-            z-index: 100000; /* 比 Fancybox 还要高一点 */
+            z-index: 100000;  
             cursor: pointer;
             transition: transform 0.2s;
         }
@@ -243,7 +244,7 @@
         @media (max-width: 768px) {
             #photo-comment-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; transform: translateY(100%); border-radius: 15px 15px 0 0; }
             #photo-comment-sidebar.show { transform: translateY(0); }
-            /* 手机端按钮位置微调 */
+             
             #comment-toggle-btn { bottom: 80px; right: 15px; }
         }
     </style>
@@ -309,20 +310,62 @@
     </div>
 
     <header data-aos="fade-down" data-aos-duration="1000">
-        <h1>{{ .Title }}</h1>
+        <h1>我们的时光印记</h1>
         <p class="subtitle typing-cursor">记录我们的每一个瞬间</p>
         <div id="love-timer">Loading...</div>
     </header>
 
     <div class="gallery-grid" id="gallery-grid">
-        {{ $files := readDir "static/images" }}
-        {{ range $files }}
+        
+        
             <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
-                <a href="/images/{{ .Name }}" data-fancybox="gallery" data-caption="">
-                    <img src="/images/{{ .Name }}" alt="" loading="lazy">
+                <a href="/images/NORMAL00022.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00022.jpg" alt="" loading="lazy">
                 </a>
             </div>
-        {{ end }}
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00038.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00038.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00039.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00039.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00042.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00042.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00052.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00052.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00053.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00053.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/NORMAL00105.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/NORMAL00105.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
+            <div class="gallery-item" data-aos="zoom-in" data-aos-duration="800">
+                <a href="/images/first-date.jpg" data-fancybox="gallery" data-caption="">
+                    <img src="/images/first-date.jpg" alt="" loading="lazy">
+                </a>
+            </div>
+        
     </div>
 
     <div id="message-board-section" data-aos="fade-up">
@@ -367,19 +410,19 @@
             }, 600);
         });
 
-        // 核心：阻止输入框事件冒泡，防止 Fancybox 抢焦点
+        
         document.getElementById('sidebar-input').addEventListener('keydown', (e) => {
             e.stopPropagation(); 
         });
         document.getElementById('photo-comment-sidebar').addEventListener('click', (e) => {
             e.stopPropagation(); 
         });
-        // ✅ 防止点击悬浮按钮时触发 Fancybox 关闭
+        
         document.getElementById('comment-toggle-btn').addEventListener('click', (e) => {
             e.stopPropagation(); 
         });
 
-        // --- Bmob 请求 ---
+        
         function bmobRequest(endpoint, method, body=null) {
             const headers = { 'X-Bmob-Application-Id': APP_ID, 'X-Bmob-REST-API-Key': REST_KEY, 'Content-Type': 'application/json' };
             if(localStorage.getItem('bmob_session')) headers['X-Bmob-Session-Token'] = localStorage.getItem('bmob_session');
@@ -400,7 +443,7 @@
             }
         }
 
-        // --- 上传 ---
+        
         function uploadPhoto() {
             const fileInput = document.getElementById('photo-file');
             const captionInput = document.getElementById('photo-caption');
@@ -442,7 +485,7 @@
             });
         }
 
-        // --- 加载照片 ---
+        
         function loadCloudPhotos() {
             bmobRequest(`/classes/${PHOTO_TABLE}?order=order,-createdAt&limit=500`, 'GET').then(data => {
                 if(data.results && data.results.length > 0) {
@@ -496,15 +539,15 @@
                                     const pid = currentSlide.triggerEl.dataset.id;
                                     if(pid !== currentPhotoId) {
                                         document.getElementById('sidebar-input').value = '';
-                                        // 切换照片时，先隐藏，再显示，确保逻辑正确
-                                        // 这里简单处理：直接更新内容
+                                        
+                                        
                                         updateSidebarContent(pid);
                                     }
                                 }
                             },
                             "close": () => { 
                                 document.getElementById('dm-input-area').classList.remove('hide-input'); 
-                                closeSidebarCompletely(); // 彻底关闭
+                                closeSidebarCompletely(); 
                             }
                         }
                     });
@@ -512,42 +555,42 @@
             });
         }
 
-        // --- ✅ 单图评论区逻辑 (含悬浮按钮) ---
         
-        // 1. 打开大图时，或者切换照片时调用
+        
+        
         function showPhotoSidebar(pid) {
             currentPhotoId = pid;
             const sidebar = document.getElementById('photo-comment-sidebar');
             const toggleBtn = document.getElementById('comment-toggle-btn');
             
             sidebar.classList.add('show');
-            toggleBtn.style.display = 'none'; // 打开侧边栏，隐藏按钮
+            toggleBtn.style.display = 'none'; 
             
             loadPhotoComments(pid);
             startSidebarPolling();
         }
         
-        // 2. 仅仅更新内容（用于切换照片，不涉及按钮逻辑）
+        
         function updateSidebarContent(pid) {
             currentPhotoId = pid;
             document.getElementById('sidebar-comment-list').innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">加载中...</div>';
             loadPhotoComments(pid);
         }
 
-        // 3. 手动点击“×”关闭侧边栏（进入“隐藏模式”）
+        
         function closeSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
-            // 显示悬浮按钮
+            
             document.getElementById('comment-toggle-btn').style.display = 'flex';
         }
 
-        // 4. 手动点击“💬”按钮（恢复侧边栏）
+        
         function openSidebarManually() {
             document.getElementById('photo-comment-sidebar').classList.add('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
         }
 
-        // 5. 彻底关闭（Fancybox关闭时调用）
+        
         function closeSidebarCompletely() {
             document.getElementById('photo-comment-sidebar').classList.remove('show');
             document.getElementById('comment-toggle-btn').style.display = 'none';
@@ -562,7 +605,7 @@
             }, 4000);
         }
 
-        // 核心：对比更新，不闪烁
+        
         function loadPhotoComments(pid) {
             const where = JSON.stringify({ "photoId": pid });
             bmobRequest(`/classes/${COMMENT_TABLE}?where=${encodeURIComponent(where)}&order=-createdAt`, 'GET').then(data => {
@@ -640,7 +683,7 @@
             });
         }
 
-        // --- 拖拽 ---
+        
         function initAdminDrag() {
             const grid = document.getElementById('gallery-grid');
             new Sortable(grid, {
@@ -727,7 +770,7 @@
             star.style.left = e.clientX + 'px'; star.style.top = e.clientY + 'px'; document.body.appendChild(star); setTimeout(() => star.remove(), 800);
         });
 
-        // 智能无感更新（主留言墙）
+        
         function loadCloudMessages() {
             bmobRequest('/classes/Danmaku?order=-createdAt&limit=50', 'GET').then(data => {
                 const list = document.getElementById('message-list'); 
