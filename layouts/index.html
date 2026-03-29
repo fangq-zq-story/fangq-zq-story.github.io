@@ -117,5 +117,51 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script src="/js/app.js"></script>
+<div id="wheel-btn" onclick="toggleWheelModal()">🎡</div>
+
+
+
+<div id="wheel-btn" onclick="toggleWheelModal()">🎡</div>
+
+    <div id="wheel-modal" class="modal-overlay">
+        <div class="modal-box wheel-modal-box">
+            <div class="close-modal" onclick="toggleWheelModal()">×</div>
+            <div class="wheel-settings-btn" onclick="toggleWheelSettings()" title="自定义菜单">⚙️</div>
+            
+            <h3 style="margin-bottom: 10px;">今天吃什么？</h3>
+            
+            <div id="wheel-flip-container" class="wheel-flip-container">
+                <div class="wheel-flip-inner">
+                    
+                    <div class="wheel-flip-front">
+                        <p id="wheel-subtitle" style="font-size: 0.8rem; color: #999; margin-bottom: 20px;">拯救你的选择困难症</p>
+                        <div id="wheel-result"></div>
+                        
+                        <div class="wheel-container">
+                            <div class="wheel-pointer"></div>
+                            <div class="wheel" id="lucky-wheel"></div>
+                        </div>
+                        
+                        <button class="modal-btn" id="spin-btn" onclick="spinWheel()" style="margin-top: 20px;">🎲 开始抽奖</button>
+                    </div>
+
+                    <div class="wheel-flip-back">
+                        <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px; font-weight: bold;">自定义菜单</p>
+                        <p style="font-size: 0.75rem; color: #999; margin-top:-5px; margin-bottom: 15px;">(用逗号、空格或换行分隔皆可)</p>
+                        
+                        <textarea id="wheel-options-input" class="modal-input" placeholder="例如：麻辣烫，火锅，麦当劳" style="height: 180px; resize: none; font-size: 1rem; line-height: 1.6; border-radius: 10px;"></textarea>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="modal-btn" onclick="saveWheelOptions()" style="margin-bottom: 0; flex: 2; background: #55efc4; color: #2d3436;">💾 保存并应用</button>
+                            <button class="modal-btn" onclick="toggleWheelSettings()" style="margin-bottom: 0; flex: 1; background: #dfe6e9; color: #2d3436;">取消</button>
+                        </div>
+                        <button class="modal-btn" onclick="resetWheelOptions()" style="margin-top: 10px; background: transparent; color: #ff7675; border: 1px dashed #ff7675;">↻ 恢复默认菜单</button>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
 </body>
 </html>

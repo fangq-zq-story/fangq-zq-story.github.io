@@ -31,12 +31,18 @@ function removeLoader() {
 window.addEventListener('load', removeLoader);
 setTimeout(removeLoader, 5000); 
 
-// 侧边栏评论功能：防止冒泡 + 回车发送
+// ✅ 回车发送功能
 const sidebarInput = document.getElementById('sidebar-input');
 if(sidebarInput) {
     sidebarInput.addEventListener('keydown', (e) => { 
         e.stopPropagation(); 
-        if (e.key === 'Enter') postSidebarComment(); 
+        if (e.key === 'Enter') {
+            postSidebarComment(); 
+        }
+    });
+    sidebarInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebarInput.focus();
     });
 }
 
@@ -90,7 +96,7 @@ function renderGalleryItem(photo, isPrepend = false) {
         div.innerHTML = `${controls}
             <a href="${safeUrl}" data-fancybox="gallery" data-caption="${photo.caption}" data-id="${photo.objectId}">
                 <div class="video-badge"></div>
-                <video src="${thumbUrl}" muted preload="metadata" playsinline></video>
+                <video src="${thumbUrl}" muted preload="metadata" playsinline webkit-playsinline></video>
             </a>
             <div class="photo-caption-text">${photo.caption}</div>`;
     } else {
@@ -197,6 +203,10 @@ function showPhotoSidebar(pid) {
     currentPhotoId = pid;
     const sidebar = document.getElementById('photo-comment-sidebar');
     const toggleBtn = document.getElementById('comment-toggle-btn');
+    
+    // ✅ 关键：打开评论时，给 body 加标记，通知 CSS 缩小视频
+    document.body.classList.add('mobile-split-view');
+    
     sidebar.classList.add('show');
     toggleBtn.style.display = 'none'; 
     loadPhotoComments(pid);
@@ -212,16 +222,26 @@ function updateSidebarContent(pid) {
 function closeSidebarManually() {
     document.getElementById('photo-comment-sidebar').classList.remove('show');
     document.getElementById('comment-toggle-btn').style.display = 'flex';
+    
+    // ✅ 关闭评论时，恢复视频大小
+    document.body.classList.remove('mobile-split-view');
 }
 
 function openSidebarManually() {
     document.getElementById('photo-comment-sidebar').classList.add('show');
     document.getElementById('comment-toggle-btn').style.display = 'none';
+    
+    // ✅ 打开评论时，缩小视频
+    document.body.classList.add('mobile-split-view');
 }
 
 function closeSidebarCompletely() {
     document.getElementById('photo-comment-sidebar').classList.remove('show');
     document.getElementById('comment-toggle-btn').style.display = 'none';
+    
+    // ✅ 关闭时，恢复视频大小
+    document.body.classList.remove('mobile-split-view');
+    
     currentPhotoId = null;
     if(photoCommentInterval) clearInterval(photoCommentInterval);
 }
@@ -589,3 +609,143 @@ function createStar() {
 }
 const styleSheet = document.createElement("style"); styleSheet.innerText = `@keyframes starFall { 0% { transform: translateY(-100px) rotate(-45deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(100vh) translateX(-200px) rotate(-45deg); opacity: 0; } } @keyframes dmLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }`;
 document.head.appendChild(styleSheet); setInterval(createStar, 700);
+
+
+// ================= 大转盘核心逻辑 (V2.0 动态配置版) =================
+const defaultWheelOptions = ['麻辣烫', '自选菜', '小火锅', '轻食沙拉', '汉堡包', '饿一顿','小馄饨'];
+// 动态加载数据：优先从缓存读取，没有则用默认
+let wheelOptions = JSON.parse(localStorage.getItem('my_wheel_options')) || [...defaultWheelOptions];
+// 扩充颜色库，以防用户输入的选项太多
+const wheelColors = ['#ff7675', '#a29bfe', '#55efc4', '#ffeaa7', '#74b9ff', '#fab1a0', '#fd79a8', '#00cec9', '#81ecec', '#fdcb6e']; 
+let isSpinning = false;
+let currentRotation = 0;
+
+function initWheel() {
+    const wheel = document.getElementById('lucky-wheel');
+    if (!wheel) return;
+    
+    wheel.innerHTML = ''; // 清空上一轮的 DOM
+    const sliceAngle = 360 / wheelOptions.length;
+    let gradientParts = [];
+
+    wheelOptions.forEach((option, index) => {
+        const startAngle = index * sliceAngle;
+        const endAngle = (index + 1) * sliceAngle;
+        // 动态分配颜色（取模运算实现颜色循环）
+        const color = wheelColors[index % wheelColors.length];
+        gradientParts.push(`${color} ${startAngle}deg ${endAngle}deg`);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'wheel-text-container';
+        textDiv.innerText = option;
+        textDiv.style.transform = `rotate(${startAngle + sliceAngle / 2}deg)`;
+        wheel.appendChild(textDiv);
+    });
+
+    wheel.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+}
+
+// 翻转界面：打开/关闭设置
+function toggleWheelSettings() {
+    if (isSpinning) return; // 旋转中禁止翻转
+    const container = document.getElementById('wheel-flip-container');
+    const isFlipped = container.classList.contains('flipped');
+    
+    if (!isFlipped) {
+        // 翻过去之前，把当前的选项加载到文本框里，用逗号连接
+        document.getElementById('wheel-options-input').value = wheelOptions.join('， ');
+    }
+    container.classList.toggle('flipped');
+}
+
+// 保存设置到 LocalStorage
+function saveWheelOptions() {
+    const inputVal = document.getElementById('wheel-options-input').value;
+    // 使用正则切分：支持中文逗号、英文逗号、空格、换行符，并过滤空字符串
+    let newOptions = inputVal.split(/[,，\s\n]+/).map(item => item.trim()).filter(item => item !== '');
+    
+    if (newOptions.length < 2) {
+        alert("⚠️ 转盘至少需要 2 个选项哦！"); return;
+    }
+    if (newOptions.length > 15) {
+        alert("⚠️ 选项太多啦！扇形会太挤，建议不要超过 15 个。"); return;
+    }
+
+    wheelOptions = newOptions;
+    localStorage.setItem('my_wheel_options', JSON.stringify(wheelOptions)); // 存入浏览器
+    
+    // 恢复正面初始状态
+    resetWheelUI();
+    initWheel(); // 重新绘制转盘
+    toggleWheelSettings(); // 翻回正面
+}
+
+// 恢复默认设置
+function resetWheelOptions() {
+    if (confirm("确定要放弃自定义，恢复默认菜单吗？")) {
+        wheelOptions = [...defaultWheelOptions];
+        localStorage.removeItem('my_wheel_options'); // 清除缓存
+        resetWheelUI();
+        initWheel();
+        toggleWheelSettings();
+    }
+}
+
+// 抽奖逻辑
+function spinWheel() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    resetWheelUI(); // 隐藏上次的结果
+    const btn = document.getElementById('spin-btn');
+    btn.disabled = true; btn.innerText = "🌀 命运转动中...";
+
+    const wheel = document.getElementById('lucky-wheel');
+    const targetIdx = Math.floor(Math.random() * wheelOptions.length);
+    const sliceAngle = 360 / wheelOptions.length;
+    const targetCenterAngle = targetIdx * sliceAngle + (sliceAngle / 2);
+    const baseSpins = 360 * (Math.floor(Math.random() * 3) + 4); // 随机转 4-6 圈
+    
+    currentRotation = Math.floor(currentRotation / 360) * 360 + baseSpins + (360 - targetCenterAngle);
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+    wheel.addEventListener('transitionend', function onSpinEnd() {
+        wheel.removeEventListener('transitionend', onSpinEnd);
+        isSpinning = false;
+        btn.disabled = false; btn.innerText = "🎲 再抽一次";
+        
+        // 显示优雅的内嵌结果
+        const resultDiv = document.getElementById('wheel-result');
+        resultDiv.innerHTML = `🎉 去吃【${wheelOptions[targetIdx]}】！`;
+        resultDiv.classList.add('show');
+        document.getElementById('wheel-subtitle').style.display = 'none';
+        
+        // 撒花特效
+        for(let i=0; i<10; i++) {
+            setTimeout(() => {
+                const colors = ["#ff7675", "#ff9a9e", "#a29bfe", "#55efc4", "#81ecec"];
+                const heart = document.createElement('div'); heart.innerText = '✨'; heart.className = 'click-heart';
+                heart.style.left = (window.innerWidth / 2 + (Math.random()*150 - 75)) + 'px'; 
+                heart.style.top = (window.innerHeight / 2 + (Math.random()*150 - 75)) + 'px';
+                heart.style.fontSize = Math.random() * 20 + 15 + 'px'; document.body.appendChild(heart); setTimeout(() => heart.remove(), 1000);
+            }, i * 100);
+        }
+    }, { once: true });
+}
+
+// 辅助函数：重置 UI
+function resetWheelUI() {
+    document.getElementById('wheel-result').classList.remove('show');
+    document.getElementById('wheel-subtitle').style.display = 'block';
+}
+
+function toggleWheelModal() {
+    const modal = document.getElementById('wheel-modal');
+    // 如果关闭弹窗时正好在背面，顺便把它翻回正面
+    if(modal.style.display === 'flex' && document.getElementById('wheel-flip-container').classList.contains('flipped')) {
+        setTimeout(() => document.getElementById('wheel-flip-container').classList.remove('flipped'), 300);
+    }
+    modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+}
+
+window.addEventListener('load', initWheel);
