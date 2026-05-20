@@ -1,7 +1,0 @@
-baseURL = "https://fangq-zq-story.github.io/"
-languageCode = 'zh-cn'
-title = '我们的纪念馆'
-theme = 'hugo-easy-gallery'
-
-[params]
-    # 这里可以添加一些主题自定义参数
